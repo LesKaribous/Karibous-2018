@@ -39,6 +39,7 @@ void setup()
 {
 	Wire.begin();
 	Serial.begin(9600);
+	delay(1000);
 
 	// while(!digitalRead(pinTirette))
 	// {
@@ -53,15 +54,16 @@ void setup()
 	// 	//attente(100);
 	// }
 	timeInit = millis();
-  delay(1000);
 }
 
+//----------------BOUCLE----------------
 void loop()
 {
 	//testDeplacement();
   Homologation();
 }
 
+//----------------TEST DE DEPLACEMENT----------------
 void testDeplacement()
 {
 	sendNavigation(1, 0, 300);
@@ -80,59 +82,7 @@ void testDeplacement()
 	}
 }
 
-bool askNavigation()
-{
-  bool etatNavigation = true;
-  char reponseNavigation ;
-	Wire.requestFrom(carteDeplacement, 1);
-  reponseNavigation = Wire.read();
-  if (reponseNavigation=='N') etatNavigation = true ;
-  else if (reponseNavigation=='O') etatNavigation = false ;
-  Serial.println(reponseNavigation);
-
-	return etatNavigation;
-}
-
-void majScore(int points, int multiplicateur)
-{
-	score = score + (points*multiplicateur);
-}
-
-//----------------MISE A JOUR DU TEMPS DE MATCH----------------
-int majTemps()
-{
-  int tempsRestant = ( tempsMatch - (millis() - timeInit) ) / 1000;
-  if ( tempsRestant <= 0 )
-  {
-    finMatch();
-  }
-  return tempsRestant;
-}
-
-void attente(int temps)
-{
-	int initTemps = millis();
-	while( (millis()-initTemps) <= temps)
-	{
-		// Faire des choses dans la procedure d'attente
-		majTemps();
-	}
-}
-
-void turnGo(bool recalage,bool ralentit,int turn, int go)
-{
-	bitWrite(optionNavigation,0,equipe);
-	bitWrite(optionNavigation,1,recalage);
-	bitWrite(optionNavigation,2,ralentit);
-	sendNavigation(optionNavigation, turn, go);
-	attente(600);
-	while(askNavigation())
-	{
-		attente(100);
-		//Serial.println(askNavigation());
-	}
-}
-
+//----------------STRATEGIE D'HOMOLOGATION----------------
 void Homologation()
 {
 	turnGo(0,false,0,900);
@@ -153,6 +103,61 @@ void Homologation()
   while(1);
 }
 
+//----------------DEMANDE L'ETAT DU DEPLACEMENT----------------
+bool askNavigation()
+{
+  bool etatNavigation = true;
+  Wire.requestFrom(carteDeplacement, 1);
+  char reponseNavigation = Wire.read();
+  if (reponseNavigation=='N') etatNavigation = true ;
+  else if (reponseNavigation=='O') etatNavigation = false ;
+	return etatNavigation;
+}
+
+//----------------PROCEDURE DE MAJ DU SCORE----------------
+void majScore(int points, int multiplicateur)
+{
+	score = score + (points*multiplicateur);
+}
+
+//----------------MISE A JOUR DU TEMPS DE MATCH----------------
+int majTemps()
+{
+  int tempsRestant = ( tempsMatch - (millis() - timeInit) ) / 1000;
+  if ( tempsRestant <= 0 )
+  {
+    finMatch();
+  }
+  return tempsRestant;
+}
+
+//----------------PROCEDURE D'ATTENTE----------------
+void attente(int temps)
+{
+	int initTemps = millis();
+	while( (millis()-initTemps) <= temps)
+	{
+		// Faire des choses dans la procedure d'attente
+		majTemps();
+	}
+}
+
+//----------------ENVOI UNE COMMANDE TURN GO----------------
+void turnGo(bool recalage,bool ralentit,int turn, int go)
+{
+	bitWrite(optionNavigation,0,equipe);
+	bitWrite(optionNavigation,1,recalage);
+	bitWrite(optionNavigation,2,ralentit);
+	sendNavigation(optionNavigation, turn, go);
+	attente(600);
+	while(askNavigation())
+	{
+		attente(100);
+		//Serial.println(askNavigation());
+	}
+}
+
+//----------------ENVOI UNE COMMANDE DE DEPLACEMENT ABSOLU----------------
 void sendNavigation(byte fonction, int X, int Y, int rot)
 {
 	Wire.beginTransmission(carteDeplacement);
@@ -166,6 +171,7 @@ void sendNavigation(byte fonction, int X, int Y, int rot)
 	Wire.endTransmission();
 }
 
+//----------------ENVOI UNE COMMANDE DE DEPLACEMENT RELATIF----------------
 void sendNavigation(byte fonction, int rot, int dist)
 {
 	if ( equipe == vert ) rot = -rot ;
@@ -178,6 +184,7 @@ void sendNavigation(byte fonction, int rot, int dist)
 	Wire.endTransmission();
 }
 
+//----------------PROCEDURE DE FIN DE MATCH----------------
 void finMatch()
 {
 	// Stopper les moteurs
