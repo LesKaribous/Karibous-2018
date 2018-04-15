@@ -1,5 +1,8 @@
 #include <Arduino.h>
 #include <Wire.h>
+#include <U8g2lib.h>
+#include <SPI.h>
+#include "DFRobotDFPlayerMini.h"
 
 // Points pour chaque action
 #define recuperateur 10 // points pour chaque récupérateur au moins vidé d’une balle par l’équipe à qui il appartient
