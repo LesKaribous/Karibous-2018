@@ -252,10 +252,8 @@ void sendNavigation(byte fonction, int rot, int dist)
 	bufNavRelatif[2]=rot & 255;
 	bufNavRelatif[3]=dist >> 8;
 	bufNavRelatif[4]=dist & 255;
-
 	// Calcul du CRC
 	crcNavRelatif = CRC8.smbus(bufNavRelatif, sizeof(bufNavRelatif));
-
 	// Envoi des données
 	Wire.beginTransmission(carteDeplacement);
 	for(int i=0;i<=4;i++)
