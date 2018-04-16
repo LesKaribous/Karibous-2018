@@ -23,6 +23,10 @@
 // Autres
 #define tempsMatch 99000
 #define SerialPlayer Serial1
+//Etat de la position demandée
+#define TERMINEE 0 // Position validée et terminée
+#define RECU 1 // Position reçu
+#define ERRONEE 2 // Position erronée. CRC nok.
 // Logo Karibous
 #define LOGO_KARIBOUS_width 128
 #define LOGO_KARIBOUS_height 33
@@ -95,7 +99,7 @@ void Homologation();
 void recalageInit();
 void finMatch();
 void majTemps();
-bool askNavigation();
+int askNavigation();
 // Gestion LCD
 void u8g2_prepare();
 void u8g2_splash_screen();
@@ -106,12 +110,12 @@ void draw();
 
 void setup()
 {
+	u8g2.begin();
+	// Logo des Karibous
+	u8g2_splash_screen();
 	Wire.begin();
 	Serial.begin(9600);
 	SerialPlayer.begin(9600);
-	u8g2.begin();
-	// Logo des Karibous
-  u8g2_splash_screen();
 	delay(2000);
 	// Initialisation du MP3
 	if (!myDFPlayer.begin(SerialPlayer)) statutMp3 = false;
@@ -120,6 +124,7 @@ void setup()
   myDFPlayer.playMp3Folder(1);
 	// Menu d'avant Match
   u8g2_menu_avant_match();
+	delay(2000);
 	// Gestion tirette
 
 	// Lancement du Match
@@ -176,13 +181,14 @@ void Homologation()
 }
 
 //----------------DEMANDE L'ETAT DU DEPLACEMENT----------------
-bool askNavigation()
+int askNavigation()
 {
-  bool etatNavigation = true;
+  int etatNavigation ;
   Wire.requestFrom(carteDeplacement, 1);
   char reponseNavigation = Wire.read();
-  if (reponseNavigation=='N') etatNavigation = true ;
-  else if (reponseNavigation=='O') etatNavigation = false ;
+  if (reponseNavigation=='N') etatNavigation = RECU ;
+  else if (reponseNavigation=='O') etatNavigation = TERMINEE ;
+  else etatNavigation = ERRONEE ;
 	return etatNavigation;
 }
 
@@ -216,12 +222,19 @@ void attente(int temps)
 //----------------ENVOI UNE COMMANDE TURN GO----------------
 void turnGo(bool recalage,bool ralentit,int turn, int go)
 {
+  int reponseNavigation ;
 	bitWrite(optionNavigation,0,equipe);
 	bitWrite(optionNavigation,1,recalage);
 	bitWrite(optionNavigation,2,ralentit);
 	sendNavigation(optionNavigation, turn, go);
 	attente(600);
-	while(askNavigation())
+  reponseNavigation = askNavigation();
+  while (reponseNavigation==ERRONEE)
+  {
+    sendNavigation(optionNavigation, turn, go);
+    reponseNavigation = askNavigation();
+  }
+	while(askNavigation()==RECU)
 	{
 		attente(100);
 		//Serial.println(askNavigation());
@@ -254,6 +267,7 @@ void sendNavigation(byte fonction, int rot, int dist)
 	bufNavRelatif[4]=dist & 255;
 	// Calcul du CRC
 	crcNavRelatif = CRC8.smbus(bufNavRelatif, sizeof(bufNavRelatif));
+	//Serial.println(crcNavRelatif);
 	// Envoi des données
 	Wire.beginTransmission(carteDeplacement);
 	for(int i=0;i<=4;i++)
