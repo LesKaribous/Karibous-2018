@@ -13,6 +13,7 @@
 #define activePanneau 25 //points pour un panneau alimenté (interrupteur fermé) à la fin du match
 #define deposeAbeille 5 //points pour la dépose de l’abeille sur la ruche
 #define activeAbeille 50 //points pour une fleur butinée (ballon éclaté)
+#define nonForfait 10 //points bonus sont attribués à toutes les équipes qui ne sont pas « forfait »
 // Adressage I2C pour les cartes esclaves
 #define carteDeplacement 60
 #define carteActionneur 80
