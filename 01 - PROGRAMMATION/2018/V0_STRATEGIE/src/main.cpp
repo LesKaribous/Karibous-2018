@@ -78,6 +78,7 @@ double timeInit=0;
 bool statutMp3 = false;
 U8G2_ST7920_128X64_F_SW_SPI u8g2(U8G2_R0,13,11,12,U8X8_PIN_NONE);
 DFRobotDFPlayerMini myDFPlayer;
+int tempsRestant = tempsMatch;
 
 void sendNavigation(byte fonction, int X, int Y, int rot);
 void sendNavigation(byte fonction, int rot, int dist);
@@ -88,8 +89,8 @@ void testDeplacement();
 void Homologation();
 void recalageInit();
 void finMatch();
+void majTemps();
 bool askNavigation();
-int majTemps();
 // Gestion LCD
 void u8g2_prepare();
 void u8g2_splash_screen();
@@ -187,14 +188,13 @@ void majScore(int points, int multiplicateur)
 }
 
 //----------------MISE A JOUR DU TEMPS DE MATCH----------------
-int majTemps()
+void majTemps()
 {
-  int tempsRestant = ( tempsMatch - (millis() - timeInit) ) / 1000;
+  tempsRestant = ( tempsMatch - (millis() - timeInit) ) / 1000;
   if ( tempsRestant <= 0 )
   {
     finMatch();
   }
-  return tempsRestant;
 }
 
 //----------------PROCEDURE D'ATTENTE----------------
@@ -203,8 +203,8 @@ void attente(int temps)
 	int initTemps = millis();
 	while( (millis()-initTemps) <= temps)
 	{
-		// Faire des choses dans la procedure d'attente
 		majTemps();
+		u8g2_menu_pendant_match();
 	}
 }
 
@@ -279,6 +279,8 @@ void u8g2_splash_screen() {
 }
 
 void u8g2_menu_pendant_match() {
+	u8g2.clearBuffer();
+	u8g2_prepare();
   u8g2.setFont(u8g2_font_inr42_mn);
   u8g2.setCursor(8, 9);
   u8g2.print(score);
@@ -286,8 +288,9 @@ void u8g2_menu_pendant_match() {
   u8g2.drawStr( 0, 0, "Score:");
   u8g2.drawStr( 70, 0, "Temps:    sec");
   u8g2.setCursor(95, 0);
-  u8g2.print(tempsMatch);
+  u8g2.print(tempsRestant);
   u8g2.drawStr( 105, 57, "points");
+	u8g2.sendBuffer();
 }
 
 void u8g2_menu_avant_match() {
@@ -311,9 +314,4 @@ void u8g2_splash_screen_GO() {
   u8g2.setFont(u8g2_font_logisoso58_tr);
   u8g2.drawStr( 18, 2, "GO!");
   u8g2.sendBuffer();
-}
-
-void draw() {
-  u8g2_prepare();
-  u8g2_menu_pendant_match();
 }
