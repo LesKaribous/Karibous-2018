@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <math.h>
+#include <FastCRC.h>
 //#include <Capteur.h>
 
 //Adresse I2C du module de navigation
@@ -23,6 +24,10 @@ int pinReset2=6;
 
 AccelStepper MGauche(AccelStepper::DRIVER,pinStep1, pinDir1);
 AccelStepper MDroit(AccelStepper::DRIVER,pinStep2, pinDir2);
+
+FastCRC8 CRC8;
+byte bufNavRelatif[5]={0,0,0,0,0}; // Buffer de reception des ordres de navigation relatifs
+byte crcNavRelatif = 0; // CRC de controle des ordres de navigation relatifs
 
 byte fonction ;
 int16_t absoluteRequest[3] ; // X,Y,orientation
@@ -347,7 +352,7 @@ void receiveEvent(int howMany)
 		*/
 		etat=1;
 	}
-	else if(howMany == 5)
+	else if(howMany == 6)
 	{
 		// Si un déplacement relatif est demandé
 		fonction = Wire.read();

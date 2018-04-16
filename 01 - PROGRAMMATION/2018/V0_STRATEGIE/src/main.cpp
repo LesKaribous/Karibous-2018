@@ -2,7 +2,8 @@
 #include <Wire.h>
 #include <U8g2lib.h>
 #include <SPI.h>
-#include "DFRobotDFPlayerMini.h"
+#include <FastCRC.h>
+#include <DFRobotDFPlayerMini.h>
 
 // Points pour chaque action
 #define recuperateur 10 // points pour chaque récupérateur au moins vidé d’une balle par l’équipe à qui il appartient
@@ -76,9 +77,12 @@ byte optionNavigation = 0;
 int score = 0;
 double timeInit=0;
 bool statutMp3 = false;
+int tempsRestant = tempsMatch;
 U8G2_ST7920_128X64_F_SW_SPI u8g2(U8G2_R0,13,11,12,U8X8_PIN_NONE);
 DFRobotDFPlayerMini myDFPlayer;
-int tempsRestant = tempsMatch;
+FastCRC8 CRC8;
+byte bufNavRelatif[5]={0,0,0,0,0}; // Buffer d'envoi des ordres de navigation relatifs
+byte crcNavRelatif = 0; // CRC de controle pour les ordres de navigation relatifs
 
 void sendNavigation(byte fonction, int X, int Y, int rot);
 void sendNavigation(byte fonction, int rot, int dist);
@@ -241,12 +245,23 @@ void sendNavigation(byte fonction, int X, int Y, int rot)
 void sendNavigation(byte fonction, int rot, int dist)
 {
 	if ( equipe == vert ) rot = -rot ;
+	// Stockage des valeurs à envoyer dans le buffer
+	bufNavRelatif[0]=fonction;
+	bufNavRelatif[1]=rot >> 8;
+	bufNavRelatif[2]=rot & 255;
+	bufNavRelatif[3]=dist >> 8;
+	bufNavRelatif[4]=dist & 255;
+
+	// Calcul du CRC
+	crcNavRelatif = CRC8.smbus(bufNavRelatif, sizeof(bufNavRelatif));
+
+	// Envoi des données
 	Wire.beginTransmission(carteDeplacement);
-	Wire.write(fonction);
-	Wire.write(rot >> 8);
-	Wire.write(rot & 255);
-	Wire.write(dist >> 8);
-	Wire.write(dist & 255);
+	for(int i=0;i<=4;i++)
+	{
+		Wire.write(bufNavRelatif[i]);
+	}
+	Wire.write(crcNavRelatif);
 	Wire.endTransmission();
 }
 
