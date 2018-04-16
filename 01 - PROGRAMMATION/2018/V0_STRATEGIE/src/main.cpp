@@ -162,13 +162,18 @@ void testDeplacement()
 //----------------STRATEGIE D'HOMOLOGATION----------------
 void Homologation()
 {
+  majScore(deposeAbeille, 1);
+  majScore(deposePanneau, 1);
 	turnGo(0,false,0,900);
 	turnGo(0,true,90,150);
+  majScore(activePanneau, 1);
 	turnGo(0,false,0,-1000);
 	turnGo(0,false,-45,-980);
 	turnGo(0,false,-45,-250);
 	turnGo(0,true,0,-100);
 	turnGo(0,false,0,300);
+  majScore(activeAbeille, 1);
+  attente(300);
 	// turnGo(0,false,-45,750);
   // turnGo(0,false,135,650); // Pousser les cube
 	// turnGo(0,false,0,-480);
