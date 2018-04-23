@@ -2,7 +2,8 @@
 #include <Wire.h>
 #include <U8g2lib.h>
 #include <SPI.h>
-#include "DFRobotDFPlayerMini.h"
+#include <FastCRC.h>
+#include <DFRobotDFPlayerMini.h>
 
 // Points pour chaque action
 #define recuperateur 10 // points pour chaque récupérateur au moins vidé d’une balle par l’équipe à qui il appartient
@@ -12,6 +13,7 @@
 #define activePanneau 25 //points pour un panneau alimenté (interrupteur fermé) à la fin du match
 #define deposeAbeille 5 //points pour la dépose de l’abeille sur la ruche
 #define activeAbeille 50 //points pour une fleur butinée (ballon éclaté)
+#define nonForfait 10 //points bonus sont attribués à toutes les équipes qui ne sont pas « forfait »
 // Adressage I2C pour les cartes esclaves
 #define carteDeplacement 60
 #define carteActionneur 80
@@ -21,6 +23,16 @@
 // Autres
 #define tempsMatch 99000
 #define SerialPlayer Serial1
+//Etat de la position demandée
+#define TERMINEE 0 // Position validée et terminée
+#define RECU 1 // Position reçu
+#define ERRONEE 2 // Position erronée. CRC nok.
+// Etat bouttons IHM
+#define fuck 1
+#define noFuck 0
+#define strategie1 0
+#define strategie2 1
+
 // Logo Karibous
 #define LOGO_KARIBOUS_width 128
 #define LOGO_KARIBOUS_height 33
@@ -70,15 +82,21 @@ static unsigned char LOGO_KARIBOUS_bits[] = {
    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
+// Declaration des borches d'IO
+int digi_1 = 7, digi_2 = 6, pinEquipe = 5, pinStrategie = 4, pinTourette = 3, pinValidation = 2, digi_7 = 9, digi_8 = 8;
+//int ana_1 = A8, ana_2 = A9, ana_3 = A0, ana_4 = A1, ana_5 = A2, ana_6 = A3, ana_7 = A6, ana_8 = A7; //A refaire
 
-bool equipe = vert;
+bool equipe = vert, strategie = strategie1, tourette = noFuck;
 byte optionNavigation = 0;
 int score = 0;
 double timeInit=0;
 bool statutMp3 = false;
+int tempsRestant = tempsMatch;
 U8G2_ST7920_128X64_F_SW_SPI u8g2(U8G2_R0,13,11,12,U8X8_PIN_NONE);
 DFRobotDFPlayerMini myDFPlayer;
-int tempsRestant = tempsMatch;
+FastCRC8 CRC8;
+byte bufNavRelatif[5]={0,0,0,0,0}; // Buffer d'envoi des ordres de navigation relatifs
+byte crcNavRelatif = 0; // CRC de controle pour les ordres de navigation relatifs
 
 void sendNavigation(byte fonction, int X, int Y, int rot);
 void sendNavigation(byte fonction, int rot, int dist);
@@ -90,7 +108,7 @@ void Homologation();
 void recalageInit();
 void finMatch();
 void majTemps();
-bool askNavigation();
+int askNavigation();
 // Gestion LCD
 void u8g2_prepare();
 void u8g2_splash_screen();
@@ -98,25 +116,42 @@ void u8g2_menu_pendant_match();
 void u8g2_menu_avant_match();
 void u8g2_splash_screen_GO();
 void draw();
+// Gestion Bouton IHM
+void bouttonIHM();
 
 void setup()
 {
+  pinMode(pinEquipe, INPUT_PULLUP);
+  pinMode(pinStrategie, INPUT_PULLUP);
+  pinMode(pinTourette, INPUT_PULLUP);
+  pinMode(pinValidation, INPUT_PULLUP);
+
+
+	u8g2.begin();
+	// Logo des Karibous
+	u8g2_splash_screen();
 	Wire.begin();
 	Serial.begin(9600);
 	SerialPlayer.begin(9600);
-	u8g2.begin();
-	// Logo des Karibous
-  u8g2_splash_screen();
 	delay(2000);
 	// Initialisation du MP3
 	if (!myDFPlayer.begin(SerialPlayer)) statutMp3 = false;
 	else statutMp3 = true;
 	myDFPlayer.volume(20);  //Set volume value. From 0 to 30
   myDFPlayer.playMp3Folder(1);
-	// Menu d'avant Match
-  u8g2_menu_avant_match();
-	// Gestion tirette
-
+  // Gestion tirette
+  while (digitalRead(pinValidation))
+  {
+    // Menu d'avant Match
+    bouttonIHM();
+    u8g2_menu_avant_match();
+  }
+  while (!digitalRead(pinValidation))
+  {
+    // Menu d'avant Match
+    bouttonIHM();
+    u8g2_menu_avant_match();
+  }
 	// Lancement du Match
 	timeInit = millis();
 	u8g2_splash_screen_GO();
@@ -128,6 +163,14 @@ void loop()
 {
 	//testDeplacement();
   Homologation();
+}
+
+//----------------GESTION DES BOUTTONS DE L'IHM----------------
+void bouttonIHM()
+{
+  equipe=digitalRead(pinEquipe);
+  strategie=digitalRead(pinStrategie);
+  tourette=digitalRead(pinTourette);
 }
 
 //----------------TEST DE DEPLACEMENT----------------
@@ -152,13 +195,18 @@ void testDeplacement()
 //----------------STRATEGIE D'HOMOLOGATION----------------
 void Homologation()
 {
+  majScore(deposeAbeille, 1);
+  majScore(deposePanneau, 1);
 	turnGo(0,false,0,900);
 	turnGo(0,true,90,150);
+  majScore(activePanneau, 1);
 	turnGo(0,false,0,-1000);
 	turnGo(0,false,-45,-980);
-	turnGo(0,false,-45,-250);
+	turnGo(0,false,-45,-20);
 	turnGo(0,true,0,-100);
 	turnGo(0,false,0,300);
+  majScore(activeAbeille, 1);
+  attente(300);
 	// turnGo(0,false,-45,750);
   // turnGo(0,false,135,650); // Pousser les cube
 	// turnGo(0,false,0,-480);
@@ -171,13 +219,14 @@ void Homologation()
 }
 
 //----------------DEMANDE L'ETAT DU DEPLACEMENT----------------
-bool askNavigation()
+int askNavigation()
 {
-  bool etatNavigation = true;
+  int etatNavigation ;
   Wire.requestFrom(carteDeplacement, 1);
   char reponseNavigation = Wire.read();
-  if (reponseNavigation=='N') etatNavigation = true ;
-  else if (reponseNavigation=='O') etatNavigation = false ;
+  if (reponseNavigation=='N') etatNavigation = RECU ;
+  else if (reponseNavigation=='O') etatNavigation = TERMINEE ;
+  else etatNavigation = ERRONEE ;
 	return etatNavigation;
 }
 
@@ -211,12 +260,19 @@ void attente(int temps)
 //----------------ENVOI UNE COMMANDE TURN GO----------------
 void turnGo(bool recalage,bool ralentit,int turn, int go)
 {
+  int reponseNavigation ;
 	bitWrite(optionNavigation,0,equipe);
 	bitWrite(optionNavigation,1,recalage);
 	bitWrite(optionNavigation,2,ralentit);
 	sendNavigation(optionNavigation, turn, go);
 	attente(600);
-	while(askNavigation())
+  reponseNavigation = askNavigation();
+  while (reponseNavigation==ERRONEE)
+  {
+    sendNavigation(optionNavigation, turn, go);
+    reponseNavigation = askNavigation();
+  }
+	while(askNavigation()==RECU)
 	{
 		attente(100);
 		//Serial.println(askNavigation());
@@ -241,12 +297,22 @@ void sendNavigation(byte fonction, int X, int Y, int rot)
 void sendNavigation(byte fonction, int rot, int dist)
 {
 	if ( equipe == vert ) rot = -rot ;
+	// Stockage des valeurs à envoyer dans le buffer
+	bufNavRelatif[0]=fonction;
+	bufNavRelatif[1]=rot >> 8;
+	bufNavRelatif[2]=rot & 255;
+	bufNavRelatif[3]=dist >> 8;
+	bufNavRelatif[4]=dist & 255;
+	// Calcul du CRC
+	crcNavRelatif = CRC8.smbus(bufNavRelatif, sizeof(bufNavRelatif));
+	//Serial.println(crcNavRelatif);
+	// Envoi des données
 	Wire.beginTransmission(carteDeplacement);
-	Wire.write(fonction);
-	Wire.write(rot >> 8);
-	Wire.write(rot & 255);
-	Wire.write(dist >> 8);
-	Wire.write(dist & 255);
+	for(int i=0;i<=4;i++)
+	{
+		Wire.write(bufNavRelatif[i]);
+	}
+	Wire.write(crcNavRelatif);
 	Wire.endTransmission();
 }
 
@@ -297,6 +363,7 @@ void u8g2_menu_avant_match() {
   u8g2.clearBuffer();
   u8g2_prepare();
     u8g2.setFont(u8g2_font_4x6_tf);
+    // Etat mp3 :
     u8g2.drawStr( 0, 0, "Etat MP3:");
     if ( statutMp3 )
     {
@@ -305,6 +372,36 @@ void u8g2_menu_avant_match() {
     else
     {
       u8g2.drawStr( 40, 0, "Echec");
+    }
+    // Etat equipe :
+    u8g2.drawStr( 0, 10, "Equipe :");
+    if ( equipe == vert )
+    {
+      u8g2.drawStr( 40, 10, "VERT");
+    }
+    else
+    {
+      u8g2.drawStr( 40, 10, "ORANGE");
+    }
+    // Etat strategie :
+    u8g2.drawStr( 0, 20, "Strategie :");
+    if ( strategie == strategie1 )
+    {
+      u8g2.drawStr( 50, 20, "NORMAL");
+    }
+    else
+    {
+      u8g2.drawStr( 50, 20, "ATTENTION");
+    }
+    // Etat tourette :
+    u8g2.drawStr( 0, 30, "tourette :");
+    if ( tourette == noFuck )
+    {
+      u8g2.drawStr( 40, 30, "POLIE");
+    }
+    else
+    {
+      u8g2.drawStr( 40, 30, "FILS DE PUTES !!!!");
     }
   u8g2.sendBuffer();
 }

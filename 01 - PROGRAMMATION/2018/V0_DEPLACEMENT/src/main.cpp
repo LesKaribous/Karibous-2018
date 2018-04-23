@@ -3,13 +3,20 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <math.h>
+#include <FastCRC.h>
 //#include <Capteur.h>
 
 //Adresse I2C du module de navigation
 #define ADRESSE 60
+//Etat des déplacements
 #define FINI 0
 #define EN_COURS 1
 #define PREVU 2
+//Etat de la nouvelle position demandée
+#define VALIDEE 0 // Nouvelle position validée et prise en compte
+#define DISPONIBLE 1 // Nouvelle position enregistrée
+#define ERRONEE 2 // nouvelle position erronée. CRC nok.
+
 
 int pinStep1=4;
 int pinDir1=5;
@@ -24,12 +31,14 @@ int pinReset2=6;
 AccelStepper MGauche(AccelStepper::DRIVER,pinStep1, pinDir1);
 AccelStepper MDroit(AccelStepper::DRIVER,pinStep2, pinDir2);
 
+FastCRC8 CRC8;
+byte bufNavRelatif[6]={0,0,0,0,0,0}; // Buffer de reception des ordres de navigation relatifs + le CRC
+byte crcNavRelatif = 0; // CRC de controle des ordres de navigation relatifs
+
 byte fonction ;
-int16_t absoluteRequest[3] ; // X,Y,orientation
 int16_t relativeRequest[2] ; // rotation, distance
 
-bool newPos = false;
-byte etat = 0;
+byte newPos = VALIDEE;
 bool PRESENCE_ARRIERE = 0, PRESENCE_AVANT = 0;
 int ADVERSAIRE_ARRIERE = 22;
 int ADVERSAIRE_AVANT = 23;
@@ -115,20 +124,13 @@ void loop()
 	turnGo();
 	bordure();
 
-	if (fonction == 255)
-	{
-		FIN_MATCH();
-		MGauche.stop();
-		MDroit.stop();
-		MGauche.run();
-		MDroit.run();
-	}
+	if (fonction == 255) FIN_MATCH();
 
 }
 
 void updatePos()
 {
-	if (newPos)
+	if (newPos==DISPONIBLE)
 	{
 		etatRotation = PREVU ;
 		etatAvance = PREVU ;
@@ -136,7 +138,7 @@ void updatePos()
 		NewX=relativeRequest[1]*FacteurX;
 		NewRot=relativeRequest[0]*FacteurRot;
 	}
-	newPos = false;
+	newPos = VALIDEE;
 }
 
 void turnGo()
@@ -331,43 +333,39 @@ void adversaire()
 
 void receiveEvent(int howMany)
 {
-	if(howMany == 7)
-	{
-		// Si un déplacement absolue est demandé
-		fonction = Wire.read();
-		absoluteRequest[0]= Wire.read() << 8 | Wire.read();
-		absoluteRequest[1]= Wire.read() << 8 | Wire.read();
-		absoluteRequest[2]= Wire.read() << 8 | Wire.read();
-		/*
-		Serial.print(absoluteRequest[0]);
-		Serial.print(" / ");
-		Serial.print(absoluteRequest[1]);
-		Serial.print(" / ");
-		Serial.println(absoluteRequest[2]);
-		*/
-		etat=1;
-	}
-	else if(howMany == 5)
+	if(howMany == 6)
 	{
 		// Si un déplacement relatif est demandé
-		fonction = Wire.read();
-		relativeRequest[0]= Wire.read() << 8 | Wire.read();
-		relativeRequest[1]= Wire.read() << 8 | Wire.read();
-		/*
-		Serial.print(relativeRequest[0]);
-		Serial.print(" / ");
-		Serial.println(relativeRequest[1]);
-		*/
-		etat=1;
+		// On receptionne les données
+		for (int i=0;i<=5;i++)
+		{
+			bufNavRelatif[i]=Wire.read();
+		}
 	}
-	newPos = true;
-	optionAdversaire = bitRead(fonction, 0);
-	optionRecalage = bitRead(fonction, 1);
-	optionRalentit = bitRead(fonction,2);
-	if (fonction==255)
+	// On calcul le CRC
+	crcNavRelatif = CRC8.smbus(bufNavRelatif, sizeof(bufNavRelatif)-1); //On enleve le CRC
+	//Serial.println(crcNavRelatif);
+	// On regarde si le CRC calculé correspond à celui envoyé
+	if (crcNavRelatif==bufNavRelatif[5])
 	{
-		// Stop le robot le plus rapidement possible
+		// CRC ok
+		// On traite les données
+		fonction = bufNavRelatif[0];
+		relativeRequest[0]= bufNavRelatif[1] << 8 | bufNavRelatif[2];
+		relativeRequest[1]= bufNavRelatif[3] << 8 | bufNavRelatif[4];
+		optionAdversaire = bitRead(fonction, 0);
+		optionRecalage = bitRead(fonction, 1);
+		optionRalentit = bitRead(fonction,2);
+		// On indique qu'une nouvelle position est disponible
+		newPos = DISPONIBLE;
 	}
+	else
+	{
+		// CRC nok - la donnée est erronée
+		// On indique que la prochaine position est erronée pour en renvois eventuel
+		newPos = ERRONEE;
+	}
+
 }
 
 //Fin de match
@@ -392,18 +390,22 @@ void FIN_MATCH()
 void requestEvent()
 {
 
-	if ( etatAvance == FINI && etatRotation == FINI)
+	if ( etatAvance == FINI && etatRotation == FINI && newPos == VALIDEE)
   {
     // Mouvement terminé
 		Wire.write("O");
-		//Wire.endTransmission();
 		//Serial.println('O');
+	}
+	else if (newPos == ERRONEE)
+	{
+    // Commande non validé
+		Wire.write("E");
+		//Serial.println('N');
 	}
 	else
 	{
     // Mouvement non terminé
 		Wire.write("N");
-		//Wire.endTransmission();
 		//Serial.println('N');
 	}
 }
