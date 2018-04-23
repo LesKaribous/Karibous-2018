@@ -27,6 +27,12 @@
 #define TERMINEE 0 // Position validée et terminée
 #define RECU 1 // Position reçu
 #define ERRONEE 2 // Position erronée. CRC nok.
+// Etat bouttons IHM
+#define fuck 1
+#define noFuck 0
+#define strategie1 0
+#define strategie2 1
+
 // Logo Karibous
 #define LOGO_KARIBOUS_width 128
 #define LOGO_KARIBOUS_height 33
@@ -76,8 +82,11 @@ static unsigned char LOGO_KARIBOUS_bits[] = {
    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
+// Declaration des borches d'IO
+int digi_1 = 7, digi_2 = 6, pinEquipe = 5, pinStrategie = 4, pinTourette = 3, pinValidation = 2, digi_7 = 9, digi_8 = 8;
+//int ana_1 = A8, ana_2 = A9, ana_3 = A0, ana_4 = A1, ana_5 = A2, ana_6 = A3, ana_7 = A6, ana_8 = A7; //A refaire
 
-bool equipe = vert;
+bool equipe = vert, strategie = strategie1, tourette = noFuck;
 byte optionNavigation = 0;
 int score = 0;
 double timeInit=0;
@@ -107,9 +116,17 @@ void u8g2_menu_pendant_match();
 void u8g2_menu_avant_match();
 void u8g2_splash_screen_GO();
 void draw();
+// Gestion Bouton IHM
+void bouttonIHM();
 
 void setup()
 {
+  pinMode(pinEquipe, INPUT_PULLUP);
+  pinMode(pinStrategie, INPUT_PULLUP);
+  pinMode(pinTourette, INPUT_PULLUP);
+  pinMode(pinValidation, INPUT_PULLUP);
+
+
 	u8g2.begin();
 	// Logo des Karibous
 	u8g2_splash_screen();
@@ -122,11 +139,19 @@ void setup()
 	else statutMp3 = true;
 	myDFPlayer.volume(20);  //Set volume value. From 0 to 30
   myDFPlayer.playMp3Folder(1);
-	// Menu d'avant Match
-  u8g2_menu_avant_match();
-	delay(2000);
-	// Gestion tirette
-
+  // Gestion tirette
+  while (digitalRead(pinValidation))
+  {
+    // Menu d'avant Match
+    bouttonIHM();
+    u8g2_menu_avant_match();
+  }
+  while (!digitalRead(pinValidation))
+  {
+    // Menu d'avant Match
+    bouttonIHM();
+    u8g2_menu_avant_match();
+  }
 	// Lancement du Match
 	timeInit = millis();
 	u8g2_splash_screen_GO();
@@ -138,6 +163,14 @@ void loop()
 {
 	//testDeplacement();
   Homologation();
+}
+
+//----------------GESTION DES BOUTTONS DE L'IHM----------------
+void bouttonIHM()
+{
+  equipe=digitalRead(pinEquipe);
+  strategie=digitalRead(pinStrategie);
+  tourette=digitalRead(pinTourette);
 }
 
 //----------------TEST DE DEPLACEMENT----------------
@@ -169,7 +202,7 @@ void Homologation()
   majScore(activePanneau, 1);
 	turnGo(0,false,0,-1000);
 	turnGo(0,false,-45,-980);
-	turnGo(0,false,-45,-250);
+	turnGo(0,false,-45,-20);
 	turnGo(0,true,0,-100);
 	turnGo(0,false,0,300);
   majScore(activeAbeille, 1);
@@ -330,6 +363,7 @@ void u8g2_menu_avant_match() {
   u8g2.clearBuffer();
   u8g2_prepare();
     u8g2.setFont(u8g2_font_4x6_tf);
+    // Etat mp3 :
     u8g2.drawStr( 0, 0, "Etat MP3:");
     if ( statutMp3 )
     {
@@ -338,6 +372,36 @@ void u8g2_menu_avant_match() {
     else
     {
       u8g2.drawStr( 40, 0, "Echec");
+    }
+    // Etat equipe :
+    u8g2.drawStr( 0, 10, "Equipe :");
+    if ( equipe == vert )
+    {
+      u8g2.drawStr( 40, 10, "VERT");
+    }
+    else
+    {
+      u8g2.drawStr( 40, 10, "ORANGE");
+    }
+    // Etat strategie :
+    u8g2.drawStr( 0, 20, "Strategie :");
+    if ( strategie == strategie1 )
+    {
+      u8g2.drawStr( 50, 20, "NORMAL");
+    }
+    else
+    {
+      u8g2.drawStr( 50, 20, "ATTENTION");
+    }
+    // Etat tourette :
+    u8g2.drawStr( 0, 30, "tourette :");
+    if ( tourette == noFuck )
+    {
+      u8g2.drawStr( 40, 30, "POLIE");
+    }
+    else
+    {
+      u8g2.drawStr( 40, 30, "FILS DE PUTES !!!!");
     }
   u8g2.sendBuffer();
 }

@@ -344,7 +344,7 @@ void receiveEvent(int howMany)
 	}
 	// On calcul le CRC
 	crcNavRelatif = CRC8.smbus(bufNavRelatif, sizeof(bufNavRelatif)-1); //On enleve le CRC
-	Serial.println(crcNavRelatif);
+	//Serial.println(crcNavRelatif);
 	// On regarde si le CRC calculé correspond à celui envoyé
 	if (crcNavRelatif==bufNavRelatif[5])
 	{
