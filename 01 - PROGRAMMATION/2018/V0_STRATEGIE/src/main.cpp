@@ -83,7 +83,7 @@ static unsigned char LOGO_KARIBOUS_bits[] = {
    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
 // Declaration des borches d'IO
-int digi_1 = 7, digi_2 = 6, pinEquipe = 5, pinStrategie = 4, pinTourette = 3, pinValidation = 2, digi_7 = 9, digi_8 = 8;
+int digi_1 = 7, pinLanceur = 6, pinEquipe = 5, pinStrategie = 4, pinTourette = 3, pinValidation = 2, digi_7 = 9, digi_8 = 8;
 //int ana_1 = A8, ana_2 = A9, ana_3 = A0, ana_4 = A1, ana_5 = A2, ana_6 = A3, ana_7 = A6, ana_8 = A7; //A refaire
 
 bool equipe = vert, strategie = strategie1, tourette = noFuck;
@@ -125,6 +125,15 @@ void setup()
   pinMode(pinStrategie, INPUT_PULLUP);
   pinMode(pinTourette, INPUT_PULLUP);
   pinMode(pinValidation, INPUT_PULLUP);
+
+  pinMode(pinLanceur, OUTPUT);
+  while(1)
+  {
+    digitalWrite(pinLanceur, HIGH);
+    delay(1000);
+    digitalWrite(pinLanceur, LOW);
+    delay(1000);
+  }
 
 
 	u8g2.begin();
