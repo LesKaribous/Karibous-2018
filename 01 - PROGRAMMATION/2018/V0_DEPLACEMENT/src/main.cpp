@@ -71,13 +71,13 @@ void updatePos()
 
 void goTo()
 {
-	if(absoluteRequest[1] != currenPos[1] || absoluteRequest[2] != currenPos[2] && !etatABS){
+	if(absoluteRequest[1] != currentPos[1] || absoluteRequest[2] != currentPos[2] && !etatABS){
 		etatABS = true;
 		int Dx, Dy;
-		Dx = absoluteRequest[1] - curentPos[1];
-		Dy = absoluteRequest[2] - curentPos[0]
+		Dx = absoluteRequest[1] - currentPos[1];
+		Dy = absoluteRequest[2] - currentPos[0];
 
-		relativeRequest[0] = atan2(Dy, Dx) - curentPos[0];
+		relativeRequest[0] = atan2(Dy, Dx) - currentPos[0];
 		relativeRequest[1] = sqrt((Dx*Dx) + (Dy*Dy));
 
 		targetRot = absoluteRequest[0];
@@ -89,7 +89,9 @@ void goTo()
 			relativeRequest[1] = 0;
 			etatABS = false;
 			etatLastRot = true;
-			currentPos = absoluteRequest;
+			currentPos[0] = absoluteRequest[0];
+			currentPos[1] = absoluteRequest[1];
+			currentPos[2] = absoluteRequest[2];
 		}
 	}else{
 		turnGo();

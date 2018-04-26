@@ -9,16 +9,16 @@
 //Adresse I2C du module de navigation
 #define ADRESSE 60
 
-//Etat des déplacements
+//Etat des dï¿½placements
 #define FINI 0
 #define EN_COURS 1
 #define PREVU 2
 
 
-//Etat de la nouvelle position demandée
-#define VALIDEE 0 // Nouvelle position validée et prise en compte
-#define DISPONIBLE 1 // Nouvelle position enregistrée
-#define ERRONEE 2 // nouvelle position erronée. CRC nok.
+//Etat de la nouvelle position demandï¿½e
+#define VALIDEE 0 // Nouvelle position validï¿½e et prise en compte
+#define DISPONIBLE 1 // Nouvelle position enregistrï¿½e
+#define ERRONEE 2 // nouvelle position erronï¿½e. CRC nok.
 
 
 
@@ -44,13 +44,15 @@ AccelStepper MDroit(AccelStepper::DRIVER,pinStep2, pinDir2);
 FastCRC8 CRC8;
 byte bufNavRelatif[6]={0,0,0,0,0,0}; // Buffer de reception des ordres de navigation relatifs + le CRC
 byte crcNavRelatif = 0; // CRC de controle des ordres de navigation relatifs
+byte bufNavAbsolu[8]={0,0,0,0,0,0,0,0}; // Buffer de reception des ordres de navigation relatifs + le CRC
+byte crcNavAbsolu = 0; // CRC de controle des ordres de navigation relatifs
 
 
 
 byte fonction ;
 int16_t relativeRequest[2] ; // rotation, distance
 int16_t absoluteRequest[3] ; // rotation, X, Y
-int16_t currentPos[3]; //rotation, X, Y 
+int16_t currentPos[3]; //rotation, X, Y
 
 byte newPos = VALIDEE;
 bool PRESENCE_ARRIERE = 0, PRESENCE_AVANT = 0;
@@ -76,29 +78,23 @@ int16_t targetRot = 0;
 
 
 
-const float FacteurX= 2.17; //Ancien : 154.8
+const float FacteurX= 1.09; //Ancien : 154.8
 const float FacteurDroit = 8.0; //Ancien : 154.8
 const float FacteurGauche = 8.0; //Ancien : 154.8
-const float FacteurRot = 6.17; //Ancien : 19.64
+const float FacteurRot = 4.63; //Ancien : 19.64
 
-const float VitesseMaxDroite = 4500.0; //Ancien : 8000
-const float VitesseMaxGauche = 4500.0; //Ancien : 8000
-const float VitesseMinDroite = 2000.0; //Ancien : 5000
-const float VitesseMinGauche = 2000.0; //Ancien : 5000
-const float AccelRot = 2000.0; //Ancien : 2000
-const float AccelMin = 1000.0; //Ancien : 2000
-const float AccelMax = 2000.0; //Ancien : 5000
-const float AccelStop = 4000.0; //Ancien : 8000
+const float VitesseMaxDroite = 1800.0; //Ancien : 8000
+const float VitesseMaxGauche = 1800.0; //Ancien : 8000
+const float VitesseMinDroite = 800.0; //Ancien : 5000
+const float VitesseMinGauche = 800.0; //Ancien : 5000
+const float AccelRot = 800.0; //Ancien : 2000
+const float AccelMin = 300.0; //Ancien : 2000
+const float AccelMax = 800.0; //Ancien : 5000
+const float AccelStop = 2000.0; //Ancien : 8000
 
 byte BORDURE = 0 ;
 // AV_DROIT , AV_GAUCHE , AR_DROIT , AR_GAUCHE
 //int PIN_BORDURE[4] = {20,17,16,21};
-
-
-
-void setup;
-
-void loop();
 
 void updatePos();
 
