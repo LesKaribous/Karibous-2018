@@ -32,6 +32,8 @@
 #define noFuck 0
 #define strategie1 0
 #define strategie2 1
+#define nok 1
+#define ok 0
 
 // Logo Karibous
 #define LOGO_KARIBOUS_width 128
@@ -82,15 +84,33 @@ static unsigned char LOGO_KARIBOUS_bits[] = {
    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
-// Declaration des borches d'IO
-int digi_1 = 7, digi_2 = 6, pinEquipe = 5, pinStrategie = 4, pinTourette = 3, pinValidation = 2, digi_7 = 9, digi_8 = 8;
-//int ana_1 = A8, ana_2 = A9, ana_3 = A0, ana_4 = A1, ana_5 = A2, ana_6 = A3, ana_7 = A6, ana_8 = A7; //A refaire
+// Declaration des broches d'IO
+// Broches numeriques :
+int pinEquipe = 5 ;     // 1 - PWM
+int pinStrategie = 4 ;  // 2 - PWM
+int pinTourette = 3 ;   // 3 - PWM
+int pinValidation = 2 ; // 4
+int pinTirette = 9 ;    // 5 - PWM
+int digi_6 = 8 ;        // 6
+int digi_7 = 7 ;        // 7
+int pinMosfet = 6;      // 8 - PWM
+// Broches analogiques : ( Non utilsié ici )
+// int ana_1 = A6 ; // 1 - pin 20 - PWM
+// int ana_2 = A7 ; // 2 - pin 21 - PWM
+// int ana_3 = A8 ; // 3 - pin 22 - PWM
+// int ana_4 = A9 ; // 4 - pin 23 - PWM
+// int ana_5 = A0 ; // 5 - pin 14
+// int ana_6 = A1 ; // 6 - pin 15
+// int ana_7 = A2 ; // 7 - pin 16
+// int ana_8 = A3 ; // 8 - pin 17
 
-bool equipe = vert, strategie = strategie1, tourette = noFuck;
+
+bool equipe = vert, strategie = strategie1, tourette = noFuck, tirette = nok;
 byte optionNavigation = 0;
 int score = 0;
 double timeInit=0;
 bool statutMp3 = false;
+bool tourettePrec = noFuck;
 int tempsRestant = tempsMatch;
 U8G2_ST7920_128X64_F_SW_SPI u8g2(U8G2_R0,13,11,12,U8X8_PIN_NONE);
 DFRobotDFPlayerMini myDFPlayer;

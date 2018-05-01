@@ -55,6 +55,28 @@ int16_t absoluteRequest[3] ; // rotation, X, Y
 int16_t currentPos[3]; //rotation, X, Y
 
 byte newPos = VALIDEE;
+
+// Declaration des broches d'ES
+// Broches analogiques :
+int ana_1 = A6 ; // 1 - pin 20 - PWM
+int ana_2 = A7 ; // 2 - pin 21 - PWM
+int ana_3 = A8 ; // 3 - pin 22 - PWM
+int ana_4 = A9 ; // 4 - pin 23 - PWM
+int ana_5 = A0 ; // 5 - pin 14
+int ana_6 = A1 ; // 6 - pin 15
+int ana_7 = A2 ; // 7 - pin 16
+int ana_8 = A3 ; // 8 - pin 17
+// Broches numeriques : ( Utilisé par le module de moteurs pas-à-pas )
+// int digi_1 = 5 ; // 1 - PWM
+// int digi_2 = 4 ; // 2 - PWM
+// int digi_3 = 3 ; // 3 - PWM
+// int digi_4 = 2 ; // 4
+// int digi_5 = 9 ; // 5 - PWM
+// int digi_6 = 8 ; // 6
+// int digi_7 = 7 ; // 7
+// int digi_8 = 6 ; // 8 - PWM
+
+
 bool PRESENCE_ARRIERE = 0, PRESENCE_AVANT = 0;
 int ADVERSAIRE_ARRIERE = 22;
 int ADVERSAIRE_AVANT = 23;
@@ -74,9 +96,6 @@ bool etatABS = false;
 bool etatLastRot = false;
 
 int16_t targetRot = 0;
-
-
-
 
 const float FacteurX= 1.09; //Ancien : 154.8
 const float FacteurDroit = 8.0; //Ancien : 154.8

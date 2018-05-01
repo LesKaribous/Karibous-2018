@@ -29,10 +29,11 @@ void setup()
 	MDroit.setMaxSpeed(VitesseMaxDroite);
 	MDroit.setAcceleration(AccelMax);
 
-	/*
+
 	pinMode(ADVERSAIRE_ARRIERE, INPUT_PULLUP);
 	pinMode(ADVERSAIRE_AVANT, INPUT_PULLUP);
 
+	/*
 	for(int i = 0;i<4;i++)
 	{
 		pinMode(PIN_BORDURE[i], INPUT_PULLUP);
