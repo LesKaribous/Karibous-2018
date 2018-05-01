@@ -7,6 +7,13 @@ void setup()
   pinMode(pinStrategie, INPUT_PULLUP);
   pinMode(pinTourette, INPUT_PULLUP);
   pinMode(pinValidation, INPUT_PULLUP);
+  pinMode(pinTirette,INPUT_PULLUP);
+
+  // pinMode(pinMosfet,OUTPUT);
+  // while(1)
+  // {
+  //   analogWrite(pinMosfet,100);
+  // }
 
 
 	u8g2.begin();
@@ -19,16 +26,17 @@ void setup()
 	// Initialisation du MP3
 	if (!myDFPlayer.begin(SerialPlayer)) statutMp3 = false;
 	else statutMp3 = true;
-	myDFPlayer.volume(20);  //Set volume value. From 0 to 30
-  myDFPlayer.playMp3Folder(1);
+  myDFPlayer.setTimeOut(500);
+	myDFPlayer.volume(30);  //Set volume value. From 0 to 30
+  //myDFPlayer.playFolder(1, 2); //play specific mp3 in SD:/02/004.mp3; Folder Name(1~10); File Name(1~255)
   // Gestion tirette
-  while (digitalRead(pinValidation))
+  while (digitalRead(pinTirette))
   {
     // Menu d'avant Match
     bouttonIHM();
     u8g2_menu_avant_match();
   }
-  while (!digitalRead(pinValidation))
+  while (!digitalRead(pinTirette))
   {
     // Menu d'avant Match
     bouttonIHM();
@@ -50,9 +58,10 @@ void loop()
 //----------------GESTION DES BOUTTONS DE L'IHM----------------
 void bouttonIHM()
 {
-  equipe=digitalRead(pinEquipe);
-  strategie=digitalRead(pinStrategie);
-  tourette=digitalRead(pinTourette);
+  equipe = digitalRead(pinEquipe);
+  strategie = digitalRead(pinStrategie);
+  tourette = digitalRead(pinTourette);
+  tirette = digitalRead(pinTirette);
 }
 
 //----------------TEST DE DEPLACEMENT----------------
@@ -295,10 +304,30 @@ void u8g2_menu_avant_match() {
     if ( tourette == noFuck )
     {
       u8g2.drawStr( 40, 30, "POLIE");
+      if(tourettePrec)
+      {
+        myDFPlayer.playFolder(1, 4);
+        tourettePrec = false ;
+      }
     }
     else
     {
-      u8g2.drawStr( 40, 30, "FILS DE PUTES !!!!");
+      u8g2.drawStr( 40, 30, "PUTE PUTE PUTE PUTE PUTE");
+      if(!tourettePrec)
+      {
+        myDFPlayer.playFolder(1, 2);
+        tourettePrec = true;
+      }
+    }
+    // Etat tirette :
+    u8g2.drawStr( 0, 40, "Etat tirette :");
+    if ( tirette == nok )
+    {
+      u8g2.drawStr( 60, 40, "Attente tirette");
+    }
+    else
+    {
+      u8g2.drawStr( 60, 40, "Tirette OK");
     }
   u8g2.sendBuffer();
 }
