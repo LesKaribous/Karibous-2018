@@ -95,14 +95,14 @@ int digi_6 = 8 ;        // 6
 int digi_7 = 7 ;        // 7
 int pinMosfet = 6;      // 8 - PWM
 // Broches analogiques : ( Non utilsié ici )
-// int ana_1 = A6 ; // 1 - pin 20 - PWM
-// int ana_2 = A7 ; // 2 - pin 21 - PWM
-// int ana_3 = A8 ; // 3 - pin 22 - PWM
-// int ana_4 = A9 ; // 4 - pin 23 - PWM
-// int ana_5 = A0 ; // 5 - pin 14
-// int ana_6 = A1 ; // 6 - pin 15
-// int ana_7 = A2 ; // 7 - pin 16
-// int ana_8 = A3 ; // 8 - pin 17
+// int ana_1 = A6 ; // 1 - pin 20 ou A6 - PWM
+// int ana_2 = A7 ; // 2 - pin 21 ou A7 - PWM
+// int ana_3 = A8 ; // 3 - pin 22 ou A8 - PWM
+// int ana_4 = A9 ; // 4 - pin 23 ou A9 - PWM
+// int ana_5 = A0 ; // 5 - pin 14 ou A0
+// int ana_6 = A1 ; // 6 - pin 15 ou A1
+// int ana_7 = A2 ; // 7 - pin 16 ou A2
+// int ana_8 = A3 ; // 8 - pin 17 ou A3
 
 
 bool equipe = vert, strategie = strategie1, tourette = noFuck, tirette = nok;
