@@ -30,8 +30,8 @@ void setup()
 	MDroit.setAcceleration(AccelMax);
 
 
-	pinMode(ADVERSAIRE_ARRIERE, INPUT_PULLUP);
-	pinMode(ADVERSAIRE_AVANT, INPUT_PULLUP);
+	pinMode(adversaireArriere, INPUT_PULLUP);
+	pinMode(adversaireAvant, INPUT_PULLUP);
 
 	/*
 	for(int i = 0;i<4;i++)
@@ -101,7 +101,7 @@ void goTo()
 
 void turnGo()
 {
-  if ((PRESENCE_AVANT && NewX>=0 && etatAvance == EN_COURS) || (PRESENCE_ARRIERE && NewX<0 && etatAvance == EN_COURS) )
+  if ((presenceAvant && NewX>=0 && etatAvance == EN_COURS) || (presenceArriere && NewX<0 && etatAvance == EN_COURS) )
   {
      TempGauche = MGauche.distanceToGo();
      TempDroit = MDroit.distanceToGo();
@@ -122,7 +122,7 @@ void turnGo()
      for(unsigned long i=0;i<=80000;i++) //Attendre XXXX iterations avant de recommencer
      {
        adversaire();
-       if ((PRESENCE_AVANT &&  NewX>=0 ) || (PRESENCE_ARRIERE && NewX<0))
+       if ((presenceAvant &&  NewX>=0 ) || (presenceArriere && NewX<0))
        {
           i=0;              //RAZ de l'iteration si toujours un obstacle
        }
@@ -236,55 +236,52 @@ void bordure()
 
 void adversaire()
 {
-	// // Si la detection adverse est activée
-	// if (!optionAdversaire)
-	// {
-	// 	// Adversaire Avant
-	// 	if (digitalReadFast(ADVERSAIRE_AVANT))
-	// 	{
-	// 		if (!PRESENCE_AVANT)
-	// 		{
-	// 			PRESENCE_AVANT = true ;
-	// 		}
-	// 		avantTimeInit = millis();
-	// 	}
-	// 	else
-	// 	{
-	// 		if((millis()-avantTimeInit)>=sensorTime)
-	// 		{
-	// 			PRESENCE_AVANT = false;
-	// 		}
-	// 	}
-	// 	// Adversaire Arriere
-	// 	if (digitalReadFast(ADVERSAIRE_ARRIERE))
-	// 	{
-	// 		if (!PRESENCE_ARRIERE)
-	// 		{
-	// 			PRESENCE_ARRIERE = true ;
-	// 		}
-	// 		arriereTimeInit = millis();
-	// 	}
-	// 	else
-	// 	{
-	// 		if((millis()-arriereTimeInit)>=sensorTime)
-	// 		{
-	// 			PRESENCE_ARRIERE = false;
-	// 		}
-	// 	}
-	// }
-	// else
-	// {
-	// 	PRESENCE_ARRIERE = false;
-	// 	PRESENCE_AVANT = false;
-	// }
+	// Si la detection adverse est activée
+	if (!optionAdversaire)
+	{
+		// Si on detecte un adversaire à l'avant
+		if (digitalReadFast(adversaireAvant))
+		{
+			// Si on avait rien detecté pour le moment
+			if (!presenceAvantTemp)
+			{
+				presenceAvantTemp = true ;
+				angleAvant = analogRead(angleBalise);
+			}
+		}
+		else if (presenceAvantTemp)
+		{
+			angleAvant = analogRead(angleBalise)-angleAvant;
+			angleAvant = abs(angleAvant); // Voir doc Arduino. Ne rien mettre d'autre dans la fonction abs()
+			presenceAvantTemp = false ;
+			if (angleAvant >= seuilAvant)
+			{
+				// Un adversaire est trop proche
+				presenceAvant = true ;
+				// On lance un timer d'attente que l'adversaire soit partit
+				avantTimeInit = millis();
+			}
+		}
+		if((millis()-avantTimeInit)>=sensorTime && presenceAvant==true)
+		{
+			// L'adversaire est trop loin depuis sufisamment longtemps.
+			presenceAvant = false;
+			presenceAvantTemp = false ;
+		}
+	}
+	else
+	{
+		presenceArriere = false;
+		presenceAvant = false;
+	}
 	//
 	// // UNIQUEMENT EN DEBUG !!!!!!!!!!!
 	// /*
-	// if (PRESENCE_AVANT || PRESENCE_ARRIERE)
+	// if (presenceAvant || presenceArriere)
 	// {
-	// 	Serial.print(PRESENCE_AVANT);
+	// 	Serial.print(presenceAvant);
 	// 	Serial.print(" - ");
-	// 	Serial.println(PRESENCE_ARRIERE);
+	// 	Serial.println(presenceArriere);
 	// 	delay(200);
 	// }
 	// */

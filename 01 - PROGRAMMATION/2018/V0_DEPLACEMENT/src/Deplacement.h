@@ -56,7 +56,7 @@ int16_t currentPos[3]; //rotation, X, Y
 
 byte newPos = VALIDEE;
 
-// Declaration des broches d'ES
+// Declaration des broches d'ES pour les satellites
 // Broches analogiques :
 int ana_1 = A6 ; // 1 - pin 20 ou A6 - PWM
 int ana_2 = A7 ; // 2 - pin 21 ou A7 - PWM
@@ -76,10 +76,14 @@ int ana_8 = A3 ; // 8 - pin 17 ou A3
 // int digi_7 = 7 ; // 7
 // int digi_8 = 6 ; // 8 - PWM
 
-
-bool PRESENCE_ARRIERE = 0, PRESENCE_AVANT = 0;
-int ADVERSAIRE_ARRIERE = 22;
-int ADVERSAIRE_AVANT = 23;
+// Declaration des variables liées à la detection d'adversaire
+bool presenceArriere = 0, presenceAvant = 0;
+bool presenceArriereTemp = 0, presenceAvantTemp = 0;
+int adversaireArriere = ana_1;
+int adversaireAvant = ana_2;
+int angleBalise = ana_3;
+int angleAvant = 0, angleArriere = 0;
+int seuilAvant = 100,seuilArriere = 100;
 
 double AskX, AskRot, TempGauche, TempDroit, NewX, NewRot ;
 
