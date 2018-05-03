@@ -203,7 +203,7 @@ void attente(int temps)
 void turnGo(bool recalage,bool ralentit,int turn, int go)
 {
   int reponseNavigation ;
-	bitWrite(optionNavigation,0,equipe);
+	bitWrite(optionNavigation,0,false); // false -> la detection adverse est active
 	bitWrite(optionNavigation,1,recalage);
 	bitWrite(optionNavigation,2,ralentit);
 	sendNavigation(optionNavigation, turn, go);

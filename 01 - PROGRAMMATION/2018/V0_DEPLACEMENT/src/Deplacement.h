@@ -79,11 +79,11 @@ int ana_8 = A3 ; // 8 - pin 17 ou A3
 // Declaration des variables liées à la detection d'adversaire
 bool presenceArriere = 0, presenceAvant = 0;
 bool presenceArriereTemp = 0, presenceAvantTemp = 0;
-int adversaireArriere = ana_1;
-int adversaireAvant = ana_2;
-int angleBalise = ana_3;
+int adversaireArriere = ana_2;
+int adversaireAvant = ana_3;
+int angleBalise = ana_1;
 int angleAvant = 0, angleArriere = 0;
-int seuilAvant = 100,seuilArriere = 100;
+int seuilAvant = 10,seuilArriere = 100;
 
 double AskX, AskRot, TempGauche, TempDroit, NewX, NewRot ;
 
