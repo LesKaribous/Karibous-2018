@@ -34,6 +34,7 @@ void loop()
   updateAction();
   //updateBalise();
   executeAction();
+  MBarillet.run();
 	if (actionRequest == 255) finMatch();
 }
 
@@ -72,7 +73,7 @@ void executeAction()
         actionBras();
       break;
       case RECUP_BALLES:
-      // statements
+        actionRecuperationBalles();
       break;
       case ENVOI_BALLES:
         actionEnvoiBalles();
@@ -89,10 +90,10 @@ void actionBras()
   switch(indexAction)
   {
     case 0:
-      if      (actionRequest==BD_HAUT)  brasDroit.write(hautBrasDroit);
-      else if (actionRequest==BD_BAS)   brasDroit.write(basBrasDroit);
+      if      (actionRequest==BD_HAUT)  brasDroit.write(hautBrasDroit)  ;
+      else if (actionRequest==BD_BAS)   brasDroit.write(basBrasDroit)   ;
       else if (actionRequest==BG_HAUT)  brasGauche.write(hautBrasGauche);
-      else if (actionRequest==BG_BAS)   brasGauche.write(basBrasGauche);
+      else if (actionRequest==BG_BAS)   brasGauche.write(basBrasGauche) ;
       indexAction++;
     break;
     case 1:
@@ -127,6 +128,31 @@ void actionEnvoiBalles()
     case 3:
       // Fin de l'actions
       analogWrite(moteurBalles,0);
+      etatAction=FINI;
+      indexAction++;
+    break;
+  }
+}
+
+void actionRecuperationBalles()
+{
+  switch(indexAction)
+  {
+    case 0:
+      //
+      MBarillet.moveTo(1500);
+      indexAction++;
+    break;
+    case 1:
+      // Attendre la fin du mouvement du barillet
+      if(MBarillet.run()==false) indexAction++;
+    break;
+    case 2:
+      //
+      indexAction++;
+    break;
+    case 3:
+      // Fin de l'actions
       etatAction=FINI;
       indexAction++;
     break;

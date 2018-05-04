@@ -69,7 +69,7 @@ bool baliseState = 0;
 Actionneur baliseA(balise,ana_4,1000,800,2400);
 
 // Pin IO pour le moteur pas-à-pas du barillet
-int pinStep1=4, pinDir1=5, pinSleep1=3, pinReset1=2;
+int pinStep1=8, pinDir1=9, pinSleep1=7, pinReset1=6;
 // Declaration du moteur barillet
 AccelStepper MBarillet(AccelStepper::DRIVER,pinStep1, pinDir1);
 
@@ -78,10 +78,10 @@ byte bufAction[2]={0,0}; // Buffer de reception des ordres d'action + le CRC
 byte crcAction = 0; // CRC de controle des ordres d'action'
 byte etatAction ;
 
-const float VitesseMaxBarillet = 1000.0; //Ancien :
-const float VitesseMinBarillet = 500.0; //Ancien :
-const float AccelMin = 300.0; //Ancien :
-const float AccelMax = 800.0; //Ancien :
+const float VitesseMaxBarillet = 100.0; //Ancien :
+const float VitesseMinBarillet = 50.0; //Ancien :
+const float AccelMin = 50.0; //Ancien :
+const float AccelMax = 50.0; //Ancien :
 const float AccelStop = 2000.0; //Ancien :
 
 int indexAction = 0 ;
@@ -102,3 +102,4 @@ void executeAction();
 
 void actionBras();
 void actionEnvoiBalles();
+void actionRecuperationBalles();
