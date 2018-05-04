@@ -26,9 +26,9 @@ void setup()
     digitalWrite(pinReset2, HIGH);
     digitalWrite(pinSleep2, HIGH);
 
-    // stepper1.setMaxSpeed(300.0);
-    // stepper1.setAcceleration(200.0);
-    // stepper1.moveTo(-1000000);
+    stepper1.setMaxSpeed(300.0);
+    stepper1.setAcceleration(200.0);
+    stepper1.moveTo(-1000000);
 
     stepper2.setMaxSpeed(200.0);
     stepper2.setAcceleration(100.0);
@@ -36,9 +36,9 @@ void setup()
 }
 void loop()
 {
-    // // Change direction at the limits
-    // if (stepper1.distanceToGo() == 0)
-    //     stepper1.moveTo(-stepper1.currentPosition());
-    // stepper1.run();
+    // Change direction at the limits
+    if (stepper1.distanceToGo() == 0)
+        stepper1.moveTo(-stepper1.currentPosition());
+    stepper1.run();
      stepper2.run();
 }
