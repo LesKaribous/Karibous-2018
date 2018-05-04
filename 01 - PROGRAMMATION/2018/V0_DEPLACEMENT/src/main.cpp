@@ -40,17 +40,12 @@ void setup()
 
 void loop()
 {
-	while(1)
-	{
-		Serial.println(analogRead(A7));
-		delay(500);
-	}
 
 	MGauche.run();
 	MDroit.run();
 
 	updatePos();
-	adversaire();
+	//adversaire();
 	goTo();
 	bordure();
 
@@ -241,7 +236,7 @@ void adversaire()
 	if (!optionAdversaire)
 	{
 		// Adversaire Avant
-		if (analogRead(adversaireAvant)>350)
+		if (analogRead(adversaireAvant)>seuilAvant)
 		{
 			if (!presenceAvant)
 			{
@@ -257,7 +252,7 @@ void adversaire()
 			}
 		}
 		// Adversaire Arriere
-		if (analogRead(adversaireArriere)>350)
+		if (analogRead(adversaireArriere)>seuilArriere)
 		{
 			if (!presenceArriere)
 			{

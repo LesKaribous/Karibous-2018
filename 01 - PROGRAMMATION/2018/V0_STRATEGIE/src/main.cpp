@@ -9,13 +9,6 @@ void setup()
   pinMode(pinValidation, INPUT_PULLUP);
   pinMode(pinTirette,INPUT_PULLUP);
 
-  // pinMode(pinMosfet,OUTPUT);
-  // while(1)
-  // {
-  //   analogWrite(pinMosfet,100);
-  // }
-
-
 	u8g2.begin();
 	// Logo des Karibous
 	u8g2_splash_screen();
@@ -52,7 +45,8 @@ void setup()
 void loop()
 {
 	//testDeplacement();
-  Homologation();
+  chateauFirst();
+  //Homologation();
 }
 
 //----------------GESTION DES BOUTTONS DE L'IHM----------------
@@ -86,26 +80,56 @@ void testDeplacement()
 //----------------STRATEGIE D'HOMOLOGATION----------------
 void Homologation()
 {
+  //PANNEAU DOMOTIQUE + ABEILLE + BALLES
   majScore(deposeAbeille, 1);
   majScore(deposePanneau, 1);
 	turnGo(0,false,0,900);
 	turnGo(0,true,90,150);
   majScore(activePanneau, 1);
 	turnGo(0,false,0,-1000);
-	turnGo(0,false,-45,-980);
-	turnGo(0,false,-45,-20);
-	turnGo(0,true,0,-100);
+	turnGo(0,false,-45,-930);
+	turnGo(0,false,-45,-230);
+	turnGo(0,true,0,-140);             // Recalage bordure
+  if (equipe==vert) action(BD_BAS);
+  else action(BG_BAS);
 	turnGo(0,false,0,300);
   majScore(activeAbeille, 1);
+  if (equipe==vert) action(BD_HAUT);
+  else action(BG_HAUT);
   attente(300);
-	// turnGo(0,false,-45,750);
-  // turnGo(0,false,135,650); // Pousser les cube
+	turnGo(0,true,90,-120);
+  turnGo(0,false,0,1045);
+  turnGo(0,true,90,280);
 	// turnGo(0,false,0,-480);
 	// turnGo(0,false,90,500);
 	// turnGo(0,true,0,220); // recalage Tube
 	// turnGo(0,false,0,-200);
 	// turnGo(0,false,90,800);
-
+  while(1);
+}
+void chateauFirst()
+{
+  //CHATEAU + ABEILLE
+  majScore(deposeAbeille, 1);
+  majScore(deposePanneau, 1);
+	turnGo(0,false,0,150);
+  turnGo(0,false,-90,350);
+  turnGo(0,false,-90,220);
+  attente(25000); // Simulation chargement balles
+  turnGo(0,false,0,-300);
+  turnGo(0,false,-75,0);
+  attente(15000); // Simulation tir de balles
+  turnGo(0,false,-15,-1000);
+  turnGo(0,true,0,-50);
+  turnGo(0,false,0,70);
+  turnGo(0,false,-90,-500);
+  turnGo(0,true,0,-40);
+  if (equipe==vert) action(BD_BAS);
+  else action(BG_BAS);
+	turnGo(0,false,0,300);
+  majScore(activeAbeille, 1);
+  if (equipe==vert) action(BD_HAUT);
+  else action(BG_HAUT);
   while(1);
 }
 
@@ -171,6 +195,20 @@ void sendNavigation(byte fonction, int rot, int dist)
 	Wire.endTransmission();
 }
 
+//----------------ENVOI UNE COMMANDE A LA PARTIE ACTION------------
+void sendAction(byte actionRequested)
+{
+	// Stockage des valeurs à envoyer dans le buffer
+	bufAction[0] = actionRequested;
+	// Calcul du CRC
+	crcAction = CRC8.smbus(bufAction, sizeof(bufAction));
+	//Serial.println(crcAction);
+	// Envoi des données
+	Wire.beginTransmission(carteActionneur);
+	Wire.write(bufAction[0])  ;
+	Wire.write(crcAction)  ;
+	Wire.endTransmission() ;
+}
 
 //----------------PROCEDURE DE MAJ DU SCORE----------------
 void majScore(int points, int multiplicateur)
@@ -199,6 +237,36 @@ void attente(int temps)
 	}
 }
 
+//----------------DEMANDE L'ETAT DU DEPLACEMENT----------------
+int askAction()
+{
+  int etatAction ;
+  Wire.requestFrom(carteActionneur, 1);
+  char reponseAction = Wire.read();
+  if (reponseAction=='N') etatAction = RECU ;
+  else if (reponseAction=='O') etatAction = TERMINEE ;
+  else etatAction = ERRONEE ;
+	return etatAction;
+}
+
+void action(byte action)
+{
+  int reponseAction ;
+	sendAction(action);
+	attente(600);
+  reponseAction = askAction();
+  while (reponseAction==ERRONEE)
+  {
+    sendAction(action);
+    reponseAction = askAction();
+  }
+	while(askAction()==RECU)
+	{
+		attente(400);
+		//Serial.println(askAction());
+	}
+}
+
 //----------------ENVOI UNE COMMANDE TURN GO----------------
 void turnGo(bool recalage,bool ralentit,int turn, int go)
 {
@@ -214,13 +282,13 @@ void turnGo(bool recalage,bool ralentit,int turn, int go)
     sendNavigation(optionNavigation, turn, go);
     reponseNavigation = askNavigation();
   }
-	while(askNavigation()==RECU)
+	while(reponseNavigation==RECU)
 	{
-		attente(100);
+		attente(400);
+    reponseNavigation = askNavigation();
 		//Serial.println(askNavigation());
 	}
 }
-
 
 //----------------PROCEDURE DE FIN DE MATCH----------------
 void finMatch()

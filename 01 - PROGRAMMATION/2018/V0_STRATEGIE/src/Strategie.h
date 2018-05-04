@@ -34,6 +34,15 @@
 #define strategie2 1
 #define nok 1
 #define ok 0
+// Liste des différentes actions
+// Actions sur les bras pour l'abeille
+#define BD_HAUT 0
+#define BD_BAS  1
+#define BG_HAUT 2
+#define BG_BAS  3
+// Actions de recuperation/envoi des balles
+#define RECUP_BALLES 4
+#define ENVOI_BALLES 5
 
 // Logo Karibous
 #define LOGO_KARIBOUS_width 128
@@ -93,7 +102,7 @@ int pinValidation = 2 ; // 4
 int pinTirette = 9 ;    // 5 - PWM
 int digi_6 = 8 ;        // 6
 int digi_7 = 7 ;        // 7
-int pinMosfet = 6;      // 8 - PWM
+int digi_8 = 6;         // 8 - PWM
 // Broches analogiques : ( Non utilsié ici )
 // int ana_1 = A6 ; // 1 - pin 20 ou A6 - PWM
 // int ana_2 = A7 ; // 2 - pin 21 ou A7 - PWM
@@ -121,7 +130,10 @@ byte bufNavRelatif[5]={0,0,0,0,0}; // Buffer d'envoi des ordres de navigation re
 byte crcNavRelatif = 0; // CRC de controle pour les ordres de navigation relatifs
 
 byte bufNavAbsolu[6]={0,0,0,0,0,0}; // Buffer d'envoi des ordres de navigation absolus
-byte crcNavAbsolu = 0; // CRC de controle pour les ordres de navigation absolus
+byte crcNavAbsolu = 0 ; // CRC de controle pour les ordres de navigation absolus
+
+byte bufAction[1] = {0} ; // Buffer d'envoi des ordres de navigation absolus
+byte crcAction = 0      ; // CRC de controle pour les ordres de navigation absolus
 
 
 void draw();
@@ -141,15 +153,22 @@ void testDeplacement();
 
 //STRATEGIE D'HOMOLOGATION----------------
 void Homologation();
+void chateauFirst();
 
 //DEMANDE L'ETAT DU DEPLACEMENT----------------
 int askNavigation();
+
+//DEMANDE L'ETAT DE L'ACTION----------------
+int askAction();
 
 //ENVOI UNE COMMANDE DE DEPLACEMENT ABSOLU----------------
 void sendNavigation(byte fonction, int X, int Y, int rot);
 
 //ENVOI UNE COMMANDE DE DEPLACEMENT RELATIF----------------
 void sendNavigation(byte fonction, int rot, int dist);
+
+//ENVOI UNE COMMANDE A LA PARTIE ACTION------------
+void sendAction(byte actionRequested);
 
 //PROCEDURE DE MAJ DU SCORE----------------
 void majScore(int points, int multiplicateur);
@@ -163,6 +182,8 @@ void attente(int temps);
 //ENVOI UNE COMMANDE TURN GO----------------
 void turnGo(bool recalage,bool ralentit,int turn, int go);
 
+//ENVOI UNE ACTION----------------
+void action(byte action);
 
 //PROCEDURE DE FIN DE MATCH----------------
 void finMatch();
