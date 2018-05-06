@@ -45,8 +45,9 @@ void setup()
 void loop()
 {
 	//testDeplacement();
-  chateauFirst();
-  //Homologation();
+  //chateauFirst();
+  Homologation();
+  //testBarillet();
 }
 
 //----------------GESTION DES BOUTTONS DE L'IHM----------------
@@ -115,10 +116,10 @@ void chateauFirst()
 	turnGo(0,false,0,150);
   turnGo(0,false,-90,350);
   turnGo(0,false,-90,220);
-  attente(25000); // Simulation chargement balles
+  action(RECUP_BALLES_SAFE);
   turnGo(0,false,0,-300);
   turnGo(0,false,-75,0);
-  attente(15000); // Simulation tir de balles
+  action(ENVOI_BALLES);
   turnGo(0,false,-15,-1000);
   turnGo(0,true,0,-50);
   turnGo(0,false,0,70);
@@ -130,6 +131,13 @@ void chateauFirst()
   majScore(activeAbeille, 1);
   if (equipe==vert) action(BD_HAUT);
   else action(BG_HAUT);
+  while(1);
+}
+void testBarillet()
+{
+  //action(RECUP_BALLES_COMPLET);
+  action(RECUP_BALLES_SAFE);
+  action(ENVOI_BALLES);
   while(1);
 }
 
@@ -245,24 +253,27 @@ int askAction()
   char reponseAction = Wire.read();
   if (reponseAction=='N') etatAction = RECU ;
   else if (reponseAction=='O') etatAction = TERMINEE ;
-  else etatAction = ERRONEE ;
+  else if (reponseAction=='E') etatAction = ERRONEE ;
+  else etatAction = BIZARRE ;
 	return etatAction;
 }
 
+//----------------ENVOI UNE COMMANDE D'ACTION----------------
 void action(byte action)
 {
   int reponseAction ;
 	sendAction(action);
-	attente(600);
+	attente(400);
   reponseAction = askAction();
-  while (reponseAction==ERRONEE)
-  {
-    sendAction(action);
-    reponseAction = askAction();
-  }
-	while(askAction()==RECU)
+  // Tant que l'action n'est pas terminée
+	while(reponseAction!=TERMINEE)
 	{
 		attente(400);
+    if ((reponseAction==ERRONEE))
+    {
+      sendAction(action); // l'action est erronée, on renvois la donnée
+    }
+    reponseAction = askAction();
 		//Serial.println(askAction());
 	}
 }
@@ -275,16 +286,20 @@ void turnGo(bool recalage,bool ralentit,int turn, int go)
 	bitWrite(optionNavigation,1,recalage);
 	bitWrite(optionNavigation,2,ralentit);
 	sendNavigation(optionNavigation, turn, go);
-	attente(600);
+	attente(400);
   reponseNavigation = askNavigation();
   while (reponseNavigation==ERRONEE)
   {
     sendNavigation(optionNavigation, turn, go);
     reponseNavigation = askNavigation();
   }
-	while(reponseNavigation==RECU)
+	while(reponseNavigation!=TERMINEE)
 	{
 		attente(400);
+    if (reponseNavigation==ERRONEE)
+    {
+      sendNavigation(optionNavigation, turn, go);
+    }
     reponseNavigation = askNavigation();
 		//Serial.println(askNavigation());
 	}

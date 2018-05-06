@@ -24,9 +24,10 @@
 #define tempsMatch 99000
 #define SerialPlayer Serial1
 //Etat de la position demandée
-#define TERMINEE 0 // Position validée et terminée
-#define RECU 1 // Position reçu
-#define ERRONEE 2 // Position erronée. CRC nok.
+#define TERMINEE 0  // Position validée et terminée
+#define RECU 1      // Position reçu
+#define ERRONEE 2   // Position erronée. CRC nok.
+#define BIZARRE 3   // Reponse étrange à ne pas prendre en compte
 // Etat bouttons IHM
 #define fuck 1
 #define noFuck 0
@@ -41,8 +42,9 @@
 #define BG_HAUT 2
 #define BG_BAS  3
 // Actions de recuperation/envoi des balles
-#define RECUP_BALLES 4
-#define ENVOI_BALLES 5
+#define RECUP_BALLES_COMPLET 4
+#define RECUP_BALLES_SAFE 5
+#define ENVOI_BALLES 6
 
 // Logo Karibous
 #define LOGO_KARIBOUS_width 128
@@ -154,6 +156,7 @@ void testDeplacement();
 //STRATEGIE D'HOMOLOGATION----------------
 void Homologation();
 void chateauFirst();
+void testBarillet();
 
 //DEMANDE L'ETAT DU DEPLACEMENT----------------
 int askNavigation();
