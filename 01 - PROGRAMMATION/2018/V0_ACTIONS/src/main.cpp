@@ -7,25 +7,28 @@ void setup()
 	pinMode(pinSleep1, OUTPUT);
 
 	digitalWrite(pinReset1, HIGH);
-	digitalWrite(pinSleep1, HIGH);
+  // Desactiver le controleur au demarrage pour ne pas faire chauffer le moteur
+	digitalWrite(pinSleep1, LOW) ;
 
-	Serial.begin(9600);
+	Serial.begin(9600) ;
 	Wire.begin(ADRESSE);
 	Wire.onReceive(receiveEvent);
 	Wire.onRequest(requestEvent);
 
   MBarillet.setMaxSpeed(VitesseMaxBarillet);
   MBarillet.setAcceleration(AccelMax);
-  // Construction de la pin moteurs des balles
+  // Declaration de la pin moteur des balles
   pinMode(moteurBalles,OUTPUT);
   // Declaration des pin servo
-  brasGauche.attach(ana_1);
-  brasDroit.attach(ana_2);
-  barriere.attach(ana_3);
+  brasGauche.attach(ana_5)  ;
+  brasDroit.attach(ana_6)   ;
+  barriere.attach(ana_7)    ;
+  selecteur.attach(ana_8)   ;
   // Mise a zero des positions servomoteurs
-  brasGauche.write(hautBrasGauche);
-  brasDroit.write(hautBrasDroit);
-  barriere.write(hautBarriere);
+  brasGauche.write(hautBrasGauche)      ;
+  brasDroit.write(hautBrasDroit)        ;
+  barriere.write(hautBarriere)          ;
+  selecteur.write(positionSelecteur[0]);
 
 }
 
@@ -34,7 +37,6 @@ void loop()
   updateAction();
   //updateBalise();
   executeAction();
-  MBarillet.run();
 	if (actionRequest == 255) finMatch();
 }
 
@@ -72,8 +74,11 @@ void executeAction()
       case BG_BAS:
         actionBras();
       break;
-      case RECUP_BALLES:
-        actionRecuperationBalles();
+      case RECUP_BALLES_COMPLET:
+        actionRecuperationComplet();
+      break;
+      case RECUP_BALLES_SAFE:
+        actionRecuperationSafe();
       break;
       case ENVOI_BALLES:
         actionEnvoiBalles();
@@ -113,19 +118,41 @@ void actionEnvoiBalles()
   switch(indexAction)
   {
     case 0:
-      // Demarrer le moteur
-      analogWrite(moteurBalles,vitMaxBalles);
+      // Positionner le selecteur
+      selecteur.write(positionSelecteur[0]);
       indexAction++;
     break;
     case 1:
       // Attente que le moteur soit à une certaine vitesse
-      indexAction++;
+      if (!accelerationMoteur()) indexAction++;
     break;
     case 2:
-      // Attente que le moteur soit à une certaine vitesse
+      // lever la barriere
+      barriere.write(hautBarriere);
       indexAction++;
     break;
     case 3:
+      // Attendre l'envoi de la balle
+      if (!attente(500)) indexAction++;
+    break;
+    case 4:
+      // selectionner la balle suivante
+      nbrBalles++;
+      barriere.write(basBarriere);
+      digitalWrite(pinSleep1, HIGH);
+      MBarillet.move(sequenceBarilletEnvoi[0]);
+      indexAction++;
+    break;
+    case 5:
+      // Attendre la fin du mouvement du barillet
+      if(!MBarillet.run())
+      {
+        if (nbrBalles<=4) indexAction=2;
+        else indexAction++ ;
+        digitalWrite(pinSleep1, LOW);
+      }
+    break;
+    case 6:
       // Fin de l'actions
       analogWrite(moteurBalles,0);
       etatAction=FINI;
@@ -134,24 +161,147 @@ void actionEnvoiBalles()
   }
 }
 
-void actionRecuperationBalles()
+void actionRecuperationComplet()
 {
   switch(indexAction)
   {
     case 0:
       //
-      MBarillet.moveTo(1500);
+      barriere.write(basBarriere);
+      selecteur.write(positionSelecteur[0]);
+      digitalWrite(pinSleep1, HIGH);
+      MBarillet.move(sequenceBarilletComplet[0]);
       indexAction++;
     break;
     case 1:
       // Attendre la fin du mouvement du barillet
-      if(MBarillet.run()==false) indexAction++;
+      if(!MBarillet.run())
+      {
+        indexAction++;
+        digitalWrite(pinSleep1, LOW);
+      }
     break;
     case 2:
       //
+      digitalWrite(pinSleep1, HIGH);
+      MBarillet.move(sequenceBarilletComplet[1]);
       indexAction++;
     break;
     case 3:
+      // Attendre la fin du mouvement du barillet
+      if(!MBarillet.run())
+      {
+        indexAction++;
+        digitalWrite(pinSleep1, LOW);
+      }
+    break;
+    case 4:
+      //
+      selecteur.write(positionSelecteur[1]);
+      digitalWrite(pinSleep1, HIGH);
+      MBarillet.move(sequenceBarilletComplet[2]);
+      indexAction++;
+    break;
+    case 5:
+      // Attendre la fin du mouvement du barillet
+      if(!MBarillet.run())
+      {
+        indexAction++;
+        digitalWrite(pinSleep1, LOW);
+      }
+    break;
+    case 6:
+      selecteur.write(positionSelecteur[2]);
+      digitalWrite(pinSleep1, HIGH);
+      MBarillet.move(sequenceBarilletComplet[3]);
+      indexAction++;
+    break;
+    case 7:
+      // Attendre la fin du mouvement du barillet
+      if(!MBarillet.run())
+      {
+        indexAction++;
+        digitalWrite(pinSleep1, LOW);
+      }
+    break;
+    case 8:
+      //
+      indexAction++;
+    break;
+    case 9:
+      // Fin de l'actions
+      etatAction=FINI;
+      indexAction++;
+    break;
+  }
+}
+
+void actionRecuperationSafe()
+{
+  switch(indexAction)
+  {
+    case 0:
+      //
+      barriere.write(basBarriere);
+      selecteur.write(positionSelecteur[0]);
+      digitalWrite(pinSleep1, HIGH);
+      MBarillet.move(sequenceBarilletSafe[0]);
+      indexAction++;
+    break;
+    case 1:
+      // Attendre la fin du mouvement du barillet
+      if(!MBarillet.run())
+      {
+        indexAction++;
+        digitalWrite(pinSleep1, LOW);
+      }
+    break;
+    case 2:
+      //
+      if (!attente(1000)) indexAction++;
+    break;
+    case 3:
+      //
+      selecteur.write(positionSelecteur[1]);
+      digitalWrite(pinSleep1, HIGH);
+      MBarillet.move(sequenceBarilletSafe[1]);
+      indexAction++;
+    break;
+    case 4:
+      // Attendre la fin du mouvement du barillet
+      if(!MBarillet.run())
+      {
+        indexAction++;
+        digitalWrite(pinSleep1, LOW);
+      }
+    break;
+    case 5:
+      //
+      if (!attente(1000)) indexAction++;
+    break;
+    case 6:
+      //
+      digitalWrite(pinSleep1, HIGH);
+      MBarillet.move(sequenceBarilletSafe[2]);
+      indexAction++;
+    break;
+    case 7:
+      // Attendre la fin du mouvement du barillet
+      if(!MBarillet.run())
+      {
+        indexAction++;
+        digitalWrite(pinSleep1, LOW);
+      }
+    break;
+    case 8:
+      //
+      if (!attente(1000)) indexAction++;
+    break;
+    case 9:
+      selecteur.write(positionSelecteur[0]);
+      indexAction++;
+    break;
+    case 10:
       // Fin de l'actions
       etatAction=FINI;
       indexAction++;
@@ -210,6 +360,37 @@ void updateBalise()
   {
       baliseState = 0 ;
   }
+}
+
+bool attente(int temps)
+{
+  if (!indexTemps)
+  {
+    initTemps = millis();
+    indexTemps = true   ;
+  }
+	else if( (millis()-initTemps) >= temps)
+  {
+    indexTemps = false;
+  }
+  return(indexTemps);
+}
+
+bool accelerationMoteur()
+{
+  if (indexAccMoteur <= vitMaxBalles)
+  {
+    indexAccMoteur++ ;
+    analogWrite(moteurBalles,indexAccMoteur);
+    delay(50);
+    return true;
+  }
+  else
+  {
+    indexAccMoteur = vitMinBalles ;
+    return false;
+  }
+
 }
 
 //Fin de match
