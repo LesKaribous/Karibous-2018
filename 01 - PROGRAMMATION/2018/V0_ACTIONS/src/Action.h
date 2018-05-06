@@ -25,13 +25,15 @@
 #define BG_HAUT 2
 #define BG_BAS  3
 // Actions de recuperation/envoi des balles
-#define RECUP_BALLES 4
-#define ENVOI_BALLES 5
+#define RECUP_BALLES_COMPLET 4
+#define RECUP_BALLES_SAFE 5
+#define ENVOI_BALLES 6
 
-Servo brasGauche;
-Servo brasDroit;
-Servo barriere;
-Servo balise;
+Servo brasGauche  ;
+Servo brasDroit   ;
+Servo barriere    ;
+Servo balise      ;
+Servo selecteur   ;
 
 // Declaration des broches d'ES pour les satellites
 // Broches analogiques :
@@ -61,9 +63,14 @@ int basBarriere     = 40    ;
 int droiteBalise    = 2400  ;
 int gaucheBalise    = 900   ;
 int milieuBalise    = 1500  ;
+int positionSelecteur[3] = {170,130,70};
+int sequenceBarilletComplet[5] = {-722,279,150,150};
+int sequenceBarilletSafe[3] = {572,143,-143};
+int sequenceBarilletEnvoi[2] = {143,0};
 // Variables du moteur de lancé de balles
-int moteurBalles = ana_8      ;
-const int vitMaxBalles = 100  ;
+int moteurBalles = ana_1      ;
+const int vitMaxBalles = 80  ;
+const int vitMinBalles = 20   ;
 
 bool baliseState = 0;
 Actionneur baliseA(balise,ana_4,1000,800,2400);
@@ -73,18 +80,23 @@ int pinStep1=8, pinDir1=9, pinSleep1=7, pinReset1=6;
 // Declaration du moteur barillet
 AccelStepper MBarillet(AccelStepper::DRIVER,pinStep1, pinDir1);
 
+int initTemps = 0;
+bool indexTemps = false;
+int nbrBalles = 0;
+
 FastCRC8 CRC8;
 byte bufAction[2]={0,0}; // Buffer de reception des ordres d'action + le CRC
 byte crcAction = 0; // CRC de controle des ordres d'action'
 byte etatAction ;
 
-const float VitesseMaxBarillet = 100.0; //Ancien :
+const float VitesseMaxBarillet = 130.0; //Ancien :
 const float VitesseMinBarillet = 50.0; //Ancien :
 const float AccelMin = 50.0; //Ancien :
 const float AccelMax = 50.0; //Ancien :
 const float AccelStop = 2000.0; //Ancien :
 
 int indexAction = 0 ;
+int indexAccMoteur = vitMinBalles ;
 
 int16_t actionRequest ; // action
 
@@ -102,4 +114,7 @@ void executeAction();
 
 void actionBras();
 void actionEnvoiBalles();
-void actionRecuperationBalles();
+void actionRecuperationComplet();
+void actionRecuperationSafe();
+bool attente(int temps);
+bool accelerationMoteur();
