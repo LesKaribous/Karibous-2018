@@ -10,9 +10,9 @@ void setup()
 	pinMode(pinSleep2, OUTPUT);
 
 	digitalWrite(pinReset1, HIGH);
-	digitalWrite(pinSleep1, HIGH);
 	digitalWrite(pinReset2, HIGH);
-	digitalWrite(pinSleep2, HIGH);
+	digitalWrite(pinSleep1, LOW);
+	digitalWrite(pinSleep2, LOW);
 
 
 	//Initialisation de la communication Serie, I2C, I2C Event
@@ -62,6 +62,9 @@ void updatePos()
 		// Traitement de l'information
 		NewX=relativeRequest[1]*FacteurX;
 		NewRot=relativeRequest[0]*FacteurRot;
+		// Activer les moteurs
+		digitalWrite(pinSleep1, HIGH);
+		digitalWrite(pinSleep2, HIGH);
 	}
 	newPos = VALIDEE;
 }
@@ -184,6 +187,8 @@ void turnGo()
     if (MDroit.distanceToGo() == 0 && MGauche.distanceToGo() == 0 && etatAvance == EN_COURS)
     {
       etatAvance = FINI ;
+			digitalWrite(pinSleep1, LOW);
+			digitalWrite(pinSleep2, LOW);
     }
   }
 }
