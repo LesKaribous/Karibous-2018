@@ -104,15 +104,15 @@ int16_t targetRot = 0;
 const float FacteurX= 1.09; //Ancien : 154.8
 const float FacteurDroit = 8.0; //Ancien : 154.8
 const float FacteurGauche = 8.0; //Ancien : 154.8
-const float FacteurRot = 4.40; //Ancien : 19.64
+const float FacteurRot = 4.25; //Ancien : 19.64
 
-const float VitesseMaxDroite = 2100.0; //Ancien : 8000
-const float VitesseMaxGauche = 2100.0; //Ancien : 8000
+const float VitesseMaxDroite = 3000.0; //Ancien : 8000
+const float VitesseMaxGauche = 3000.0; //Ancien : 8000
 const float VitesseMinDroite = 800.0; //Ancien : 5000
 const float VitesseMinGauche = 800.0; //Ancien : 5000
 const float AccelRot = 600.0; //Ancien : 2000
 const float AccelMin = 300.0; //Ancien : 2000
-const float AccelMax = 1000.0; //Ancien : 5000
+const float AccelMax = 2000.0; //Ancien : 5000
 const float AccelStop = 2000.0; //Ancien : 8000
 
 byte BORDURE = 0 ;
