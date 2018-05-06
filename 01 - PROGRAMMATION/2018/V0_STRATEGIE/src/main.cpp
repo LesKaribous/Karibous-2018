@@ -272,6 +272,7 @@ void action(byte action)
     if ((reponseAction==ERRONEE))
     {
       sendAction(action); // l'action est erronée, on renvois la donnée
+      nbrBadCRC++;
     }
     reponseAction = askAction();
 		//Serial.println(askAction());
@@ -288,17 +289,13 @@ void turnGo(bool recalage,bool ralentit,int turn, int go)
 	sendNavigation(optionNavigation, turn, go);
 	attente(400);
   reponseNavigation = askNavigation();
-  while (reponseNavigation==ERRONEE)
-  {
-    sendNavigation(optionNavigation, turn, go);
-    reponseNavigation = askNavigation();
-  }
 	while(reponseNavigation!=TERMINEE)
 	{
 		attente(400);
     if (reponseNavigation==ERRONEE)
     {
       sendNavigation(optionNavigation, turn, go);
+      nbrBadCRC++;
     }
     reponseNavigation = askNavigation();
 		//Serial.println(askNavigation());
@@ -345,6 +342,9 @@ void u8g2_menu_pendant_match() {
   u8g2.setCursor(95, 0);
   u8g2.print(tempsRestant);
   u8g2.drawStr( 105, 57, "points");
+  u8g2.drawStr( 0, 57, "CRC:");
+  u8g2.setCursor(20, 57);
+  u8g2.print(nbrBadCRC);
 	u8g2.sendBuffer();
 }
 

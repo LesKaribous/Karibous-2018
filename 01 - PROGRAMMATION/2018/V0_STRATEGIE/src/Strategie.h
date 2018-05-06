@@ -122,10 +122,12 @@ int score = 0;
 double timeInit=0;
 bool statutMp3 = false;
 bool tourettePrec = noFuck;
-int tempsRestant = tempsMatch;
+double tempsRestant = tempsMatch;
 U8G2_ST7920_128X64_F_SW_SPI u8g2(U8G2_R0,13,11,12,U8X8_PIN_NONE);
 DFRobotDFPlayerMini myDFPlayer;
 
+int nbrBadCRC = 0   ; // Nombre de CRC érronés
+int nbrBizarre = 0  ; // Nombre de réponses bizarres
 
 FastCRC8 CRC8;
 byte bufNavRelatif[5]={0,0,0,0,0}; // Buffer d'envoi des ordres de navigation relatifs
