@@ -14,6 +14,10 @@ void setup()
 	digitalWrite(pinSleep1, LOW);
 	digitalWrite(pinSleep2, LOW);
 
+	//Initilisation pin capteur adversaire
+	pinMode(adversaireAvant, INPUT_PULLUP)	;
+	pinMode(adversaireArriere, INPUT_PULLUP);
+
 
 	//Initialisation de la communication Serie, I2C, I2C Event
 	Serial.begin(9600);
@@ -45,7 +49,7 @@ void loop()
 	MDroit.run();
 
 	updatePos();
-	//adversaire();
+	adversaire();
 	goTo();
 	bordure();
 
@@ -235,13 +239,25 @@ void bordure()
 
 }
 
+bool detection(int capteur, int iteration)
+{
+	int valCapteur = 0;
+	valCapteur = analogRead(capteur);
+	for ( int i = 0;i<=iteration;i++)
+	{
+		valCapteur += analogRead(capteur);
+	}
+	valCapteur = valCapteur/iteration;
+	return (valCapteur>=seuilAvant) ;
+}
+
 void adversaire()
 {
 	// Si la detection adverse est activée
 	if (!optionAdversaire)
 	{
 		// Adversaire Avant
-		if (analogRead(adversaireAvant)>seuilAvant)
+		if (digitalReadFast(adversaireAvant))
 		{
 			if (!presenceAvant)
 			{
@@ -257,7 +273,7 @@ void adversaire()
 			}
 		}
 		// Adversaire Arriere
-		if (analogRead(adversaireArriere)>seuilArriere)
+		if (digitalReadFast(adversaireArriere))
 		{
 			if (!presenceArriere)
 			{
@@ -343,10 +359,12 @@ void FIN_MATCH()
 
    	while(1)
    	{
-		MGauche.stop();
-		MDroit.stop();
+			MGauche.stop();
+			MDroit.stop();
     	MGauche.run();
     	MDroit.run();
+			digitalWrite(pinSleep1, LOW);
+			digitalWrite(pinSleep2, LOW);
    	}
 }
 

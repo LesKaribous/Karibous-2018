@@ -38,6 +38,7 @@ void setup()
 	// Lancement du Match
 	timeInit = millis();
 	u8g2_splash_screen_GO();
+  action(GO_BALISE);
 	delay (100);
 }
 
@@ -106,7 +107,11 @@ void Homologation()
 	// turnGo(0,true,0,220); // recalage Tube
 	// turnGo(0,false,0,-200);
 	// turnGo(0,false,90,800);
-  while(1);
+  while(1)
+  {
+    attente(100);
+    action(STOP_BALISE);
+  }
 }
 void chateauFirst()
 {
@@ -131,14 +136,22 @@ void chateauFirst()
   majScore(activeAbeille, 1);
   if (equipe==vert) action(BD_HAUT);
   else action(BG_HAUT);
-  while(1);
+  while(1)
+  {
+    attente(100);
+    action(STOP_BALISE);
+  }
 }
+
 void testBarillet()
 {
   //action(RECUP_BALLES_COMPLET);
   action(RECUP_BALLES_SAFE);
   action(ENVOI_BALLES);
-  while(1);
+  while(1)
+  {
+    attente(100);
+  }
 }
 
 //----------------DEMANDE L'ETAT DU DEPLACEMENT----------------
@@ -312,6 +325,8 @@ void finMatch()
 	{
 		// Stopper les moteurs
 		sendNavigation(255, 0, 0);
+    // Stoppe les actionneurs
+    sendAction(255);
 	}
 }
 
@@ -338,11 +353,11 @@ void u8g2_menu_pendant_match() {
   u8g2.print(score);
   u8g2.setFont(u8g2_font_4x6_tf);
   u8g2.drawStr( 0, 0, "Score:");
-  u8g2.drawStr( 70, 0, "Temps:    sec");
-  u8g2.setCursor(95, 0);
+  u8g2.drawStr( 68, 0, "Temps:      sec");
+  u8g2.setCursor(93, 0);
   u8g2.print(tempsRestant);
   u8g2.drawStr( 105, 57, "points");
-  u8g2.drawStr( 0, 57, "CRC:");
+  u8g2.drawStr( 0, 57, "NOK:");
   u8g2.setCursor(20, 57);
   u8g2.print(nbrBadCRC);
 	u8g2.sendBuffer();

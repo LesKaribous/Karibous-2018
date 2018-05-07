@@ -45,6 +45,9 @@
 #define RECUP_BALLES_COMPLET 4
 #define RECUP_BALLES_SAFE 5
 #define ENVOI_BALLES 6
+// Actions sur la balise
+#define GO_BALISE 7
+#define STOP_BALISE 8
 
 // Logo Karibous
 #define LOGO_KARIBOUS_width 128

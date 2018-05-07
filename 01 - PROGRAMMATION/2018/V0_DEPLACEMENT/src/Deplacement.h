@@ -59,8 +59,8 @@ byte newPos = VALIDEE;
 // Declaration des broches d'ES pour les satellites
 // Broches analogiques :
 int ana_1 = A6 ; // 1 - pin 20 ou A6 - PWM
-int ana_2 = A7 ; // 2 - pin 21 ou A7 - PWM
-int ana_3 = A8 ; // 3 - pin 22 ou A8 - PWM
+int ana_2 = 21 ; // 2 - pin 21 ou A7 - PWM
+int ana_3 = 22 ; // 3 - pin 22 ou A8 - PWM
 int ana_4 = A9 ; // 4 - pin 23 ou A9 - PWM
 int ana_5 = A0 ; // 5 - pin 14 ou A0
 int ana_6 = A1 ; // 6 - pin 15 ou A1
@@ -83,11 +83,11 @@ int adversaireArriere = ana_2;
 int adversaireAvant = ana_3;
 int angleBalise = ana_1;
 int angleAvant = 0, angleArriere = 0;
-int seuilAvant = 120,seuilArriere = 120;
+int seuilAvant = 200,seuilArriere = 200;
 
 double AskX, AskRot, TempGauche, TempDroit, NewX, NewRot ;
 
-int sensorTime = 2000;
+int sensorTime = 1000;
 int avantTimeInit = 0;
 int arriereTimeInit = 0;
 
@@ -136,3 +136,4 @@ void FIN_MATCH();
 
 void receiveEvent(int howMany);
 void requestEvent();
+bool detection(int capteur, int iteration);

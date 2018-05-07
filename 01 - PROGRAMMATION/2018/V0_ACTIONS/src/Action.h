@@ -28,6 +28,9 @@
 #define RECUP_BALLES_COMPLET 4
 #define RECUP_BALLES_SAFE 5
 #define ENVOI_BALLES 6
+// Actions sur la balise
+#define GO_BALISE 7
+#define STOP_BALISE 8
 
 Servo brasGauche  ;
 Servo brasDroit   ;
@@ -60,8 +63,8 @@ int hautBrasDroit   = 30    ;
 int basBrasDroit    = 120   ;
 int hautBarriere    = 120   ;
 int basBarriere     = 40    ;
-int droiteBalise    = 2400  ;
-int gaucheBalise    = 900   ;
+int droiteBalise    = 2100  ;
+int gaucheBalise    = 1000   ;
 int milieuBalise    = 1500  ;
 int positionSelecteur[3] = {170,130,70};
 int sequenceBarilletComplet[5] = {-722,279,150,150};
@@ -74,6 +77,7 @@ const int vitMinBalles = 20   ;
 
 bool baliseState = 0;
 Actionneur baliseA(balise,ana_4,1000,800,2400);
+bool commandeBalise = 0;
 
 // Pin IO pour le moteur pas-à-pas du barillet
 int pinStep1=8, pinDir1=9, pinSleep1=7, pinReset1=6;

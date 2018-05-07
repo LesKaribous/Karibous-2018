@@ -35,7 +35,7 @@ void setup()
 void loop()
 {
   updateAction();
-  //updateBalise();
+  if (commandeBalise) updateBalise();
   executeAction();
 	if (actionRequest == 255) finMatch();
 }
@@ -82,6 +82,14 @@ void executeAction()
       break;
       case ENVOI_BALLES:
         actionEnvoiBalles();
+      break;
+      case GO_BALISE:
+        commandeBalise = true;
+        etatAction=FINI;
+      break;
+      case STOP_BALISE:
+        commandeBalise = false;
+        etatAction=FINI;
       break;
       default:
       // statements
@@ -398,7 +406,12 @@ void finMatch()
 {
    	while(1)
    	{
-		    // Couper tous les servomoteurs
+      brasGauche.detach();
+      brasDroit.detach() ;
+      barriere.detach()  ;
+      selecteur.detach() ;
+      analogWrite(moteurBalles,0) ;
+      digitalWrite(pinSleep1, LOW);
    	}
 }
 
