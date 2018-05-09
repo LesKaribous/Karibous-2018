@@ -83,7 +83,7 @@ int adversaireArriere = ana_2;
 int adversaireAvant = ana_3;
 int angleBalise = ana_1;
 int angleAvant = 0, angleArriere = 0;
-int seuilAvant = 200,seuilArriere = 200;
+int seuilAvant = 150,seuilArriere = 150;
 
 double AskX, AskRot, TempGauche, TempDroit, NewX, NewRot ;
 
@@ -113,7 +113,7 @@ const float VitesseMinGauche = 800.0; //Ancien : 5000
 const float AccelRot = 600.0; //Ancien : 2000
 const float AccelMin = 300.0; //Ancien : 2000
 const float AccelMax = 2000.0; //Ancien : 5000
-const float AccelStop = 2000.0; //Ancien : 8000
+const float AccelStop = 4000.0; //Ancien : 8000
 
 byte BORDURE = 0 ;
 // AV_DROIT , AV_GAUCHE , AR_DROIT , AR_GAUCHE

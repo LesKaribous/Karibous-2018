@@ -6,7 +6,7 @@
 #include <DFRobotDFPlayerMini.h>
 
 // Points pour chaque action
-#define recuperateur 10 // points pour chaque récupérateur au moins vidé d’une balle par l’équipe à qui il appartient
+#define recuperateur 10 // points pour chaque récupérateur au moins vidé d’une balle
 #define chateau 5 //points pour chaque balle de la bonne couleur dans le château d’eau.
 #define epuration 10 // points par balle de la couleur adverse dans la station d’épuration
 #define deposePanneau 5 //points pour la dépose du panneau devant le château d’eau
@@ -31,8 +31,8 @@
 // Etat bouttons IHM
 #define fuck 1
 #define noFuck 0
-#define strategie1 0
-#define strategie2 1
+#define oui 0
+#define non 1
 #define nok 1
 #define ok 0
 // Liste des différentes actions
@@ -101,9 +101,9 @@ static unsigned char LOGO_KARIBOUS_bits[] = {
 // Declaration des broches d'ES pour les satellites
 // Broches numeriques :
 int pinEquipe = 5 ;     // 1 - PWM
-int pinStrategie = 4 ;  // 2 - PWM
+int pinDetection = 4 ;  // 2 - PWM
 int pinTourette = 3 ;   // 3 - PWM
-int pinValidation = 2 ; // 4
+int pinRecalage = 2 ; // 4
 int pinTirette = 9 ;    // 5 - PWM
 int digi_6 = 8 ;        // 6
 int digi_7 = 7 ;        // 7
@@ -119,7 +119,7 @@ int digi_8 = 6;         // 8 - PWM
 // int ana_8 = A3 ; // 8 - pin 17 ou A3
 
 
-bool equipe = vert, strategie = strategie1, tourette = noFuck, tirette = nok;
+bool equipe = vert, detection = oui, tourette = noFuck, tirette = nok, recalage = true;
 byte optionNavigation = 0;
 int score = 0;
 double timeInit=0;
@@ -158,10 +158,14 @@ void bouttonIHM();
 //TEST DE DEPLACEMENT----------------
 void testDeplacement();
 
-//STRATEGIE D'HOMOLOGATION----------------
+//STRATEGIES----------------
 void Homologation();
 void chateauFirst();
 void testBarillet();
+void abeilleFirst();
+
+//INITIALISATION ROBOT----------------
+void initRobot();
 
 //DEMANDE L'ETAT DU DEPLACEMENT----------------
 int askNavigation();
@@ -188,7 +192,7 @@ void majTemps();
 void attente(int temps);
 
 //ENVOI UNE COMMANDE TURN GO----------------
-void turnGo(bool recalage,bool ralentit,int turn, int go);
+void turnGo(bool adversaire, bool recalage,bool ralentit,int turn, int go);
 
 //ENVOI UNE ACTION----------------
 void action(byte action);

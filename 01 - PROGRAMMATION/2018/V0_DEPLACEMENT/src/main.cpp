@@ -253,6 +253,75 @@ bool detection(int capteur, int iteration)
 
 void adversaire()
 {
+	// //Si la detection adverse est activée
+	// if (!optionAdversaire)
+	// {
+	// 	// -----------Si on detecte un adversaire à l'avant-------------
+	// 	if (digitalReadFast(adversaireAvant))
+	// 	{
+	// 		// Si on avait rien detecté pour le moment
+	// 		if (!presenceAvantTemp)
+	// 		{
+	// 			presenceAvantTemp = true ;
+	// 			angleAvant = analogRead(angleBalise);
+	// 		}
+	// 	}
+	// 	else if (presenceAvantTemp)
+	// 	{
+	// 		angleAvant = analogRead(angleBalise)-angleAvant;
+	// 		angleAvant = abs(angleAvant); // Voir doc Arduino. Ne rien mettre d'autre dans la fonction abs()
+	// 		presenceAvantTemp = false ;
+	// 		Serial.println(angleAvant);
+	// 		if (angleAvant >= seuilAvant)
+	// 		{
+	// 			// Un adversaire est trop proche
+	// 			presenceAvant = true ;
+	// 			// On lance un timer d'attente que l'adversaire soit parti
+	// 			avantTimeInit = millis();
+	// 		}
+	// 	}
+	// 	// ------------Si on detecte un adversaire à l'arriere-------------
+	// 	if (digitalReadFast(adversaireArriere))
+	// 	{
+	// 		// Si on avait rien detecté pour le moment
+	// 		if (!presenceArriereTemp)
+	// 		{
+	// 			presenceArriereTemp = true ;
+	// 			angleArriere = analogRead(angleBalise);
+	// 		}
+	// 	}
+	// 	else if (presenceArriereTemp)
+	// 	{
+	// 		angleArriere = analogRead(angleBalise)-angleArriere;
+	// 		angleArriere = abs(angleArriere); // Voir doc Arduino. Ne rien mettre d'autre dans la fonction abs()
+	// 		presenceArriereTemp = false ;
+	// 		//Serial.println(angleArriere);
+	// 		if (angleArriere >= seuilArriere)
+	// 		{
+	// 			// Un adversaire est trop proche
+	// 			presenceArriere = true ;
+	// 			// On lance un timer d'attente que l'adversaire soit parti
+	// 			arriereTimeInit = millis();
+	// 		}
+	// 	}
+	// 	if((millis()-avantTimeInit)>=sensorTime && presenceAvant==true)
+	// 	{
+	// 		// L'adversaire est trop loin depuis sufisamment longtemps.
+	// 		presenceAvant = false;
+	// 		presenceAvantTemp = false ;
+	// 	}
+	// 	if((millis()-arriereTimeInit)>=sensorTime && presenceArriere==true)
+	// 	{
+	// 		// L'adversaire est trop loin depuis sufisamment longtemps.
+	// 		presenceArriere = false;
+	// 		presenceArriereTemp = false ;
+	// 	}
+	// }
+	// else
+	// {
+	// 	presenceArriere = false;
+	// 	presenceAvant = false;
+	// }
 	// Si la detection adverse est activée
 	if (!optionAdversaire)
 	{
@@ -305,45 +374,6 @@ void adversaire()
 		delay(200);
 	}
 	*/
-	// Si la detection adverse est activée
-	// if (!optionAdversaire)
-	// {
-	// 	// Si on detecte un adversaire à l'avant
-	// 	if (digitalReadFast(adversaireAvant))
-	// 	{
-	// 		// Si on avait rien detecté pour le moment
-	// 		if (!presenceAvantTemp)
-	// 		{
-	// 			presenceAvantTemp = true ;
-	// 			angleAvant = analogRead(angleBalise);
-	// 		}
-	// 	}
-	// 	else if (presenceAvantTemp)
-	// 	{
-	// 		angleAvant = analogRead(angleBalise)-angleAvant;
-	// 		angleAvant = abs(angleAvant); // Voir doc Arduino. Ne rien mettre d'autre dans la fonction abs()
-	// 		presenceAvantTemp = false ;
-	// 		//Serial.println(angleAvant);
-	// 		if (angleAvant >= seuilAvant)
-	// 		{
-	// 			// Un adversaire est trop proche
-	// 			presenceAvant = true ;
-	// 			// On lance un timer d'attente que l'adversaire soit partit
-	// 			avantTimeInit = millis();
-	// 		}
-	// 	}
-	// 	if((millis()-avantTimeInit)>=sensorTime && presenceAvant==true)
-	// 	{
-	// 		// L'adversaire est trop loin depuis sufisamment longtemps.
-	// 		presenceAvant = false;
-	// 		presenceAvantTemp = false ;
-	// 	}
-	// }
-	// else
-	// {
-	// 	presenceArriere = false;
-	// 	presenceAvant = false;
-	// }
 
 }
 

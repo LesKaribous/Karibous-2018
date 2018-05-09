@@ -4,9 +4,9 @@
 void setup()
 {
   pinMode(pinEquipe, INPUT_PULLUP);
-  pinMode(pinStrategie, INPUT_PULLUP);
+  pinMode(pinDetection, INPUT_PULLUP);
   pinMode(pinTourette, INPUT_PULLUP);
-  pinMode(pinValidation, INPUT_PULLUP);
+  pinMode(pinRecalage, INPUT_PULLUP);
   pinMode(pinTirette,INPUT_PULLUP);
 
 	u8g2.begin();
@@ -47,17 +47,23 @@ void loop()
 {
 	//testDeplacement();
   //chateauFirst();
-  Homologation();
+  //Homologation();
   //testBarillet();
+  abeilleFirst();
 }
 
 //----------------GESTION DES BOUTTONS DE L'IHM----------------
 void bouttonIHM()
 {
-  equipe = digitalRead(pinEquipe);
-  strategie = digitalRead(pinStrategie);
-  tourette = digitalRead(pinTourette);
-  tirette = digitalRead(pinTirette);
+  equipe    = digitalRead(pinEquipe)    ;
+  detection = digitalRead(pinDetection) ;
+  tourette  = digitalRead(pinTourette)  ;
+  tirette   = digitalRead(pinTirette)   ;
+  recalage  = digitalRead(pinRecalage)  ;
+  if (!recalage)
+  {
+    initRobot();
+  }
 }
 
 //----------------TEST DE DEPLACEMENT----------------
@@ -79,34 +85,88 @@ void testDeplacement()
 	}
 }
 
+//----------------INITIALISATION DU ROBOT----------------
+void initRobot()
+{
+  turnGo(non,0,true,-90,-370);
+  delay(500);
+  turnGo(non,0,true,0,320);
+  delay(500);
+  turnGo(non,0,true,90,-110);
+  delay(500);
+  turnGo(non,0,true,0,70);
+  delay(500);
+}
+
+//----------------STRATEGIE ABEILLE EN PREMIER----------------
+void abeilleFirst()
+{
+  // ABEILLE + BALLES
+  turnGo(non,0,false,0,100);    // Sortir de la zone de départ
+  turnGo(oui,0,false,90,-1300); // Traverser le terrain
+  turnGo(non,0,true,0,-110);    // Recalage coté abeille
+  turnGo(non,0,false,0,100);    // Décalage bordure
+  turnGo(non,0,false,-60,-80);  // Creneau 1
+  turnGo(non,0,false,-30,-140); // Creneau 2
+  turnGo(non,0,true,0,-25);     // Recalage bordure
+  // POUSSAGE ABEILLE
+  if (equipe==vert) action(BD_BAS);
+  else action(BG_BAS);
+	turnGo(oui,0,false,0,270);
+  majScore(activeAbeille, 1);
+  if (equipe==vert) action(BD_HAUT);
+  else action(BG_HAUT);
+  // Retrait de la bordure
+  turnGo(non,0,false,-30,-70);    // Degagement bordure
+  turnGo(non,0,true,120,-100);    // recalage bordure
+  // Avance vers le reservoir
+  turnGo(non,0,false,0,1020);     // Direction reservoir
+  turnGo(non,0,false,-90,122);    // Positionnement devant reservoir
+  action(RECUP_BALLES_SAFE);
+  majScore(recuperateur, 1);
+  turnGo(non,0,false,0,-300);
+  turnGo(non,0,false,-75,0);
+  action(ENVOI_BALLES);
+  majScore(chateau, 5);
+
+  //FIN DE MATCH
+  while(1)
+  {
+    attente(100);
+    action(STOP_BALISE);
+  }
+
+}
+
 //----------------STRATEGIE D'HOMOLOGATION----------------
 void Homologation()
 {
   //PANNEAU DOMOTIQUE + ABEILLE + BALLES
   majScore(deposeAbeille, 1);
   majScore(deposePanneau, 1);
-	turnGo(0,false,0,900);
-	turnGo(0,true,90,150);
+	turnGo(oui,0,false,0,900);
+	turnGo(non,0,true,90,150);
   majScore(activePanneau, 1);
-	turnGo(0,false,0,-1000);
-	turnGo(0,false,-45,-930);
-	turnGo(0,false,-45,-230);
-	turnGo(0,true,0,-140);             // Recalage bordure
+	turnGo(oui,0,false,0,-1000);
+	turnGo(oui,0,false,-45,-930);
+	turnGo(oui,0,false,-45,-230);
+	turnGo(non,0,true,0,-140);             // Recalage bordure
   if (equipe==vert) action(BD_BAS);
   else action(BG_BAS);
-	turnGo(0,false,0,300);
+	turnGo(oui,0,false,0,300);
   majScore(activeAbeille, 1);
   if (equipe==vert) action(BD_HAUT);
   else action(BG_HAUT);
   attente(300);
-	turnGo(0,true,90,-120);
-  turnGo(0,false,0,1045);
-  turnGo(0,true,90,280);
-	// turnGo(0,false,0,-480);
-	// turnGo(0,false,90,500);
-	// turnGo(0,true,0,220); // recalage Tube
-	// turnGo(0,false,0,-200);
-	// turnGo(0,false,90,800);
+	turnGo(non,0,true,90,-120);
+  turnGo(oui,0,false,0,1045);
+  turnGo(oui,0,true,90,280);
+  action(RECUP_BALLES_SAFE);
+  majScore(recuperateur, 1);
+  turnGo(non,0,false,0,-300);
+  turnGo(non,0,false,-75,0);
+  action(ENVOI_BALLES);
+  majScore(chateau, 5);
   while(1)
   {
     attente(100);
@@ -118,24 +178,26 @@ void chateauFirst()
   //CHATEAU + ABEILLE
   majScore(deposeAbeille, 1);
   majScore(deposePanneau, 1);
-	turnGo(0,false,0,150);
-  turnGo(0,false,-90,350);
-  turnGo(0,false,-90,220);
+	turnGo(non,0,false,0,150);
+  turnGo(oui,0,false,-90,340);
+  turnGo(non,0,true,-90,205);
   action(RECUP_BALLES_SAFE);
-  turnGo(0,false,0,-300);
-  turnGo(0,false,-75,0);
+  majScore(recuperateur, 1);
+  turnGo(non,0,false,0,-300);
+  turnGo(non,0,false,-75,0);
   action(ENVOI_BALLES);
-  turnGo(0,false,-15,-1000);
-  turnGo(0,true,0,-50);
-  turnGo(0,false,0,70);
-  turnGo(0,false,-90,-500);
-  turnGo(0,true,0,-40);
-  if (equipe==vert) action(BD_BAS);
-  else action(BG_BAS);
-	turnGo(0,false,0,300);
-  majScore(activeAbeille, 1);
-  if (equipe==vert) action(BD_HAUT);
-  else action(BG_HAUT);
+  majScore(chateau, 5);
+  turnGo(oui,0,false,-15,-800);
+  turnGo(non,0,true,0,-50);
+  // turnGo(non,0,false,0,70);
+  // turnGo(oui,0,false,-90,-500);
+  // turnGo(non,0,true,0,-40);
+  // if (equipe==vert) action(BD_BAS);
+  // else action(BG_BAS);
+	// turnGo(oui,0,false,0,300);
+  // majScore(activeAbeille, 1);
+  // if (equipe==vert) action(BD_HAUT);
+  // else action(BG_HAUT);
   while(1)
   {
     attente(100);
@@ -293,10 +355,13 @@ void action(byte action)
 }
 
 //----------------ENVOI UNE COMMANDE TURN GO----------------
-void turnGo(bool recalage,bool ralentit,int turn, int go)
+void turnGo(bool adversaire, bool recalage,bool ralentit,int turn, int go)
 {
   int reponseNavigation ;
-	bitWrite(optionNavigation,0,false); // false -> la detection adverse est active
+  bool optionDetection = detection || adversaire;
+  // Serial.print("Etat detection : ");
+  // Serial.println(optionDetection);
+	bitWrite(optionNavigation,0,optionDetection); // false -> la detection adverse est active
 	bitWrite(optionNavigation,1,recalage);
 	bitWrite(optionNavigation,2,ralentit);
 	sendNavigation(optionNavigation, turn, go);
@@ -387,15 +452,15 @@ void u8g2_menu_avant_match() {
     {
       u8g2.drawStr( 40, 10, "ORANGE");
     }
-    // Etat strategie :
-    u8g2.drawStr( 0, 20, "Strategie :");
-    if ( strategie == strategie1 )
+    // Etat detection:
+    u8g2.drawStr( 0, 20, "Detection :");
+    if ( detection == oui )
     {
-      u8g2.drawStr( 50, 20, "NORMAL");
+      u8g2.drawStr( 50, 20, "OUI");
     }
     else
     {
-      u8g2.drawStr( 50, 20, "ATTENTION");
+      u8g2.drawStr( 50, 20, "NON ATTENTION");
     }
     // Etat tourette :
     u8g2.drawStr( 0, 30, "tourette :");

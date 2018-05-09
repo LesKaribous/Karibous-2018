@@ -37,6 +37,7 @@ Servo brasDroit   ;
 Servo barriere    ;
 Servo balise      ;
 Servo selecteur   ;
+Servo trappe      ;
 
 // Declaration des broches d'ES pour les satellites
 // Broches analogiques :
@@ -57,22 +58,24 @@ int ana_8 = A3 ; // 8 - pin 17 ou A3
 // int digi_6 = 8 ; // 6
 // int digi_7 = 7 ; // 7
 // int digi_8 = 6 ; // 8 - PWM
-int hautBrasGauche  = 118   ;
-int basBrasGauche   = 20    ;
-int hautBrasDroit   = 30    ;
-int basBrasDroit    = 120   ;
-int hautBarriere    = 120   ;
-int basBarriere     = 40    ;
-int droiteBalise    = 2100  ;
-int gaucheBalise    = 1000   ;
-int milieuBalise    = 1500  ;
-int positionSelecteur[3] = {170,130,70};
-int sequenceBarilletComplet[5] = {-722,279,150,150};
-int sequenceBarilletSafe[3] = {572,143,-143};
-int sequenceBarilletEnvoi[2] = {143,0};
+const int hautBrasGauche  = 118   ;
+const int basBrasGauche   = 20    ;
+const int hautBrasDroit   = 30    ;
+const int basBrasDroit    = 120   ;
+const int hautBarriere    = 120   ;
+const int basBarriere     = 40    ;
+const int droiteBalise    = 2100  ;
+const int gaucheBalise    = 1000  ;
+const int milieuBalise    = 1500  ;
+const int hautTrappe      = 180   ;
+const int basTrappe       = 95    ;
+const int positionSelecteur[3] = {170,130,70};
+const int sequenceBarilletComplet[5] = {-722,279,150,150};
+const int sequenceBarilletSafe[3] = {572,143,-143};
+const int sequenceBarilletEnvoi[2] = {143,0};
 // Variables du moteur de lancé de balles
 int moteurBalles = ana_1      ;
-const int vitMaxBalles = 80  ;
+const int vitMaxBalles = 75  ;
 const int vitMinBalles = 20   ;
 
 bool baliseState = 0;
@@ -92,6 +95,8 @@ FastCRC8 CRC8;
 byte bufAction[2]={0,0}; // Buffer de reception des ordres d'action + le CRC
 byte crcAction = 0; // CRC de controle des ordres d'action'
 byte etatAction ;
+
+int capteurBarillet = ana_3;
 
 const float VitesseMaxBarillet = 130.0; //Ancien :
 const float VitesseMinBarillet = 50.0; //Ancien :
@@ -122,3 +127,5 @@ void actionRecuperationComplet();
 void actionRecuperationSafe();
 bool attente(int temps);
 bool accelerationMoteur();
+
+void initBarillet();
