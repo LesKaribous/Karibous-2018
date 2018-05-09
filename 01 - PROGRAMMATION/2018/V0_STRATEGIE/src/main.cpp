@@ -103,6 +103,8 @@ void abeilleFirst()
 {
   // ABEILLE + BALLES
   turnGo(non,0,false,0,100);    // Sortir de la zone de départ
+  majScore(deposeAbeille, 1);
+  majScore(deposePanneau, 1);
   turnGo(oui,0,false,90,-1300); // Traverser le terrain
   turnGo(non,0,true,0,-110);    // Recalage coté abeille
   turnGo(non,0,false,0,100);    // Décalage bordure
@@ -121,14 +123,13 @@ void abeilleFirst()
   turnGo(non,0,true,120,-100);    // recalage bordure
   // Avance vers le reservoir
   turnGo(non,0,false,0,1020);     // Direction reservoir
-  turnGo(non,0,false,-90,122);    // Positionnement devant reservoir
+  turnGo(non,0,false,90,122);    // Positionnement devant reservoir
   action(RECUP_BALLES_SAFE);
   majScore(recuperateur, 1);
   turnGo(non,0,false,0,-300);
   turnGo(non,0,false,-75,0);
   action(ENVOI_BALLES);
   majScore(chateau, 5);
-
   //FIN DE MATCH
   while(1)
   {
