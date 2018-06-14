@@ -26,12 +26,16 @@ void setup()
   barriere.attach(ana_7)    ;
   selecteur.attach(ana_8)   ;
   trappe.attach(ana_2)      ;
+  caleDroite.attach(1)      ;//13,12,11,10,1,0
+  caleGauche.attach(10)      ;
   // Mise a zero des positions servomoteurs
   brasGauche.write(hautBrasGauche)      ;
   brasDroit.write(hautBrasDroit)        ;
   barriere.write(hautBarriere)          ;
   selecteur.write(positionSelecteur[0]) ;
   trappe.write(hautTrappe)              ;
+  caleDroite.write(hautCaleDroite)      ;
+  caleGauche.write(hautCaleGauche)      ;
   // Mise à zero du barillet
   initBarillet();
 }
@@ -60,6 +64,7 @@ void initBarillet()
   MBarillet.move(26);
   while(MBarillet.run()){}
   digitalWrite(pinSleep1, LOW) ;
+  etatAction=FINI;
 }
 
 void updateAction()
@@ -67,8 +72,8 @@ void updateAction()
 	if (newAction==DISPONIBLE)
 	{
 		etatAction = PREVU ;
+    newAction = VALIDEE;
 	}
-	newAction = VALIDEE;
 }
 
 void executeAction()
@@ -106,17 +111,73 @@ void executeAction()
         actionEnvoiBalles();
       break;
       case GO_BALISE:
-        commandeBalise = true;
-        etatAction=FINI;
+        actionBalise(true);
       break;
       case STOP_BALISE:
-        commandeBalise = false;
-        etatAction=FINI;
+        actionBalise(false);
+      break;
+      case CALE_BAS:
+        actionCale(false);
+      break;
+      case CALE_HAUT:
+        actionCale(true);
+      break;
+      case INIT_BARILLET:
+        initBarillet();
       break;
       default:
       // statements
       break;
     }
+  }
+}
+
+void actionCale(bool etatCale)
+{
+  switch(indexAction)
+  {
+    case 0:
+      if(etatCale==true)
+      {
+        caleDroite.write(hautCaleDroite)      ;
+        caleGauche.write(hautCaleGauche)      ;
+      }
+      else
+      {
+        caleDroite.write(basCaleDroite)      ;
+        caleGauche.write(basCaleGauche)      ;
+      }
+      indexAction++;
+    break;
+    case 1:
+      // Attendre que le bras soit descendu
+      if (!attente(200)) indexAction++;
+    break;
+    case 2:
+      // FIN de l'action
+      etatAction=FINI;
+      indexAction++;
+    break;
+  }
+}
+
+void actionBalise(bool etatActionBalise)
+{
+  switch(indexAction)
+  {
+    case 0:
+      commandeBalise = etatActionBalise;
+      indexAction++;
+    break;
+    case 1:
+      // Attendre que le bras soit descendu
+      if (!attente(200)) indexAction++;
+    break;
+    case 2:
+      // FIN de l'action
+      etatAction=FINI;
+      indexAction++;
+    break;
   }
 }
 
@@ -132,8 +193,8 @@ void actionBras()
       indexAction++;
     break;
     case 1:
-      // Attente
-      indexAction++;
+      // Attendre que le bras soit descendu
+      if (!attente(200)) indexAction++;
     break;
     case 2:
       // FIN de l'action
@@ -149,22 +210,27 @@ void actionEnvoiBalles()
   {
     case 0:
       // Attente que le moteur soit à une certaine vitesse
-      if (!accelerationMoteur()) indexAction++;
+      //if (!accelerationMoteur())
+      indexAction++;
     break;
     case 1:
       // Attendre l'envoi de la balle
-      if (!attente(500)) indexAction++;
+      if (!attente(2000)) indexAction++;
     break;
     case 2:
+      // Attendre l'envoi de la balle
+      if (!attente(1000)) indexAction++;
+    break;
+    case 3:
       // lever la barriere
       barriere.write(hautBarriere);
       indexAction++;
     break;
-    case 3:
-      // Attendre l'envoi de la balle
-      if (!attente(400)) indexAction++;
-    break;
     case 4:
+      // Attendre l'envoi de la balle
+      if (!attente(300)) indexAction++;
+    break;
+    case 5:
       // selectionner la balle suivante
       nbrBalles++;
       barriere.write(basBarriere);
@@ -172,24 +238,26 @@ void actionEnvoiBalles()
       if(nbrBalles==0 || nbrBalles >=2)
       {
         MBarillet.move(sequenceBarilletEnvoi[0]);
+        barriere.write(hautBarriere);
       }
       else if (nbrBalles==1)
       {
         selecteur.write(positionSelecteur[0]);
+        barriere.write(hautBarriere);
       }
 
       indexAction++;
     break;
-    case 5:
+    case 6:
       // Attendre la fin du mouvement du barillet
       if(!MBarillet.run())
       {
-        if (nbrBalles<=3) indexAction=1;
+        if (nbrBalles<=4) indexAction=3;
         else indexAction++ ;
         digitalWrite(pinSleep1, LOW);
       }
     break;
-    case 6:
+    case 7:
       // Fin de l'actions
       analogWrite(moteurBalles,0);
       etatAction=FINI;
@@ -314,6 +382,7 @@ void actionRecuperationSafe()
     break;
     case 5:
       //
+      accelerationMoteur();
       if (!attente(800)) indexAction++;
     break;
     case 6:
@@ -397,7 +466,7 @@ bool accelerationMoteur()
   {
     indexAccMoteur++ ;
     analogWrite(moteurBalles,indexAccMoteur);
-    delay(50);
+    delay(60);
     return true;
   }
   else

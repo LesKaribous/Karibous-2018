@@ -5367,8 +5367,8 @@ Audio_Jack
 <instance part="R4" gate="G$1" x="30.48" y="86.36" rot="R180"/>
 <instance part="P+6" gate="1" x="38.1" y="93.98"/>
 <instance part="GND9" gate="1" x="78.74" y="68.58"/>
-<instance part="J5" gate="G$1" x="142.24" y="78.74"/>
-<instance part="GND10" gate="1" x="165.1" y="73.66"/>
+<instance part="J5" gate="G$1" x="104.14" y="78.74"/>
+<instance part="GND10" gate="1" x="127" y="73.66"/>
 </instances>
 <busses>
 </busses>
@@ -5467,8 +5467,8 @@ Audio_Jack
 <segment>
 <pinref part="J5" gate="G$1" pin="SLEEVE"/>
 <pinref part="GND10" gate="1" pin="GND"/>
-<wire x1="147.32" y1="83.82" x2="165.1" y2="83.82" width="0.1524" layer="91"/>
-<wire x1="165.1" y1="83.82" x2="165.1" y2="76.2" width="0.1524" layer="91"/>
+<wire x1="109.22" y1="83.82" x2="127" y2="83.82" width="0.1524" layer="91"/>
+<wire x1="127" y1="83.82" x2="127" y2="76.2" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$1" class="0">
@@ -5599,8 +5599,8 @@ Audio_Jack
 </segment>
 <segment>
 <pinref part="J5" gate="G$1" pin="RING"/>
-<wire x1="147.32" y1="81.28" x2="160.02" y2="81.28" width="0.1524" layer="91"/>
-<label x="152.4" y="78.74" size="1.778" layer="95"/>
+<wire x1="109.22" y1="81.28" x2="121.92" y2="81.28" width="0.1524" layer="91"/>
+<label x="114.3" y="78.74" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="DAC_L" class="0">
@@ -5611,8 +5611,8 @@ Audio_Jack
 </segment>
 <segment>
 <pinref part="J5" gate="G$1" pin="TIP"/>
-<wire x1="147.32" y1="73.66" x2="160.02" y2="73.66" width="0.1524" layer="91"/>
-<label x="152.4" y="73.66" size="1.778" layer="95"/>
+<wire x1="109.22" y1="73.66" x2="121.92" y2="73.66" width="0.1524" layer="91"/>
+<label x="114.3" y="73.66" size="1.778" layer="95"/>
 </segment>
 </net>
 </nets>

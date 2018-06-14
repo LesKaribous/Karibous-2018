@@ -31,6 +31,11 @@
 // Actions sur la balise
 #define GO_BALISE 7
 #define STOP_BALISE 8
+// Actions sur les cales
+#define CALE_BAS 9
+#define CALE_HAUT 10
+// INIT barillet
+#define INIT_BARILLET 11
 
 Servo brasGauche  ;
 Servo brasDroit   ;
@@ -38,6 +43,8 @@ Servo barriere    ;
 Servo balise      ;
 Servo selecteur   ;
 Servo trappe      ;
+Servo caleDroite  ;
+Servo caleGauche  ;
 
 // Declaration des broches d'ES pour les satellites
 // Broches analogiques :
@@ -58,25 +65,30 @@ int ana_8 = A3 ; // 8 - pin 17 ou A3
 // int digi_6 = 8 ; // 6
 // int digi_7 = 7 ; // 7
 // int digi_8 = 6 ; // 8 - PWM
-const int hautBrasGauche  = 118   ;
-const int basBrasGauche   = 20    ;
-const int hautBrasDroit   = 30    ;
-const int basBrasDroit    = 120   ;
-const int hautBarriere    = 120   ;
-const int basBarriere     = 40    ;
-const int droiteBalise    = 2100  ;
-const int gaucheBalise    = 1000  ;
-const int milieuBalise    = 1500  ;
-const int hautTrappe      = 180   ;
-const int basTrappe       = 95    ;
+const int hautBrasGauche    = 118   ;
+const int basBrasGauche     = 35    ;
+const int hautBrasDroit     = 30    ;
+const int basBrasDroit      = 115   ;
+const int hautBarriere      = 120   ;
+const int basBarriere       = 40    ;
+const int droiteBalise      = 2100  ;
+const int gaucheBalise      = 1000  ;
+const int milieuBalise      = 1500  ;
+const int hautTrappe        = 180   ;
+const int basTrappe         = 95    ;
+const int basCaleDroite     = 155   ;
+const int hautCaleDroite    = 65    ;
+const int basCaleGauche     = 35    ;
+const int hautCaleGauche    = 115   ;
+
 const int positionSelecteur[3] = {170,130,70};
 const int sequenceBarilletComplet[5] = {-722,279,150,150};
 const int sequenceBarilletSafe[3] = {572,143,-143};
 const int sequenceBarilletEnvoi[2] = {143,0};
 // Variables du moteur de lancé de balles
 int moteurBalles = ana_1      ;
-const int vitMaxBalles = 75  ;
-const int vitMinBalles = 20   ;
+const int vitMaxBalles = 60   ;
+const int vitMinBalles = 10   ;
 
 bool baliseState = 0;
 Actionneur baliseA(balise,ana_4,1000,800,2400);
@@ -98,10 +110,10 @@ byte etatAction ;
 
 int capteurBarillet = ana_3;
 
-const float VitesseMaxBarillet = 130.0; //Ancien :
+const float VitesseMaxBarillet = 200.0; //Ancien : 130 11/05/2018
 const float VitesseMinBarillet = 50.0; //Ancien :
 const float AccelMin = 50.0; //Ancien :
-const float AccelMax = 50.0; //Ancien :
+const float AccelMax = 100.0; //Ancien :
 const float AccelStop = 2000.0; //Ancien :
 
 int indexAction = 0 ;
@@ -128,4 +140,7 @@ void actionRecuperationSafe();
 bool attente(int temps);
 bool accelerationMoteur();
 
+void actionCale(bool etatCale);
+
 void initBarillet();
+void actionBalise(bool etatActionBalise);

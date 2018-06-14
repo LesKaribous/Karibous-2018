@@ -49,6 +49,7 @@ void loop()
   //chateauFirst();
   //Homologation();
   //testBarillet();
+  //testErreur();
   abeilleFirst();
 }
 
@@ -85,6 +86,12 @@ void testDeplacement()
 	}
 }
 
+void testErreur()
+{
+  turnGo(non,0,false,0,10);
+  turnGo(non,0,false,0,-10);
+}
+
 //----------------INITIALISATION DU ROBOT----------------
 void initRobot()
 {
@@ -102,34 +109,50 @@ void initRobot()
 void abeilleFirst()
 {
   // ABEILLE + BALLES
-  turnGo(non,0,false,0,100);    // Sortir de la zone de départ
+  turnGo(non,0,false,-45,600);   // Sortir de la zone de départ
   majScore(deposeAbeille, 1);
   majScore(deposePanneau, 1);
-  turnGo(oui,0,false,90,-1300); // Traverser le terrain
-  turnGo(non,0,true,0,-110);    // Recalage coté abeille
-  turnGo(non,0,false,0,100);    // Décalage bordure
-  turnGo(non,0,false,-60,-80);  // Creneau 1
-  turnGo(non,0,false,-30,-140); // Creneau 2
-  turnGo(non,0,true,0,-25);     // Recalage bordure
+  turnGo(oui,0,false,-45,695);   // Traverser le terrain
+  turnGo(non,0,false,120,-290);
+  turnGo(non,0,true,-30,-300);   // Recalage bordure
   // POUSSAGE ABEILLE
   if (equipe==vert) action(BD_BAS);
   else action(BG_BAS);
-	turnGo(oui,0,false,0,270);
+	turnGo(non,0,false,0,270);
   majScore(activeAbeille, 1);
   if (equipe==vert) action(BD_HAUT);
   else action(BG_HAUT);
   // Retrait de la bordure
+  turnGo(non,0,false,0,-20);
   turnGo(non,0,false,-30,-70);    // Degagement bordure
-  turnGo(non,0,true,120,-100);    // recalage bordure
+  turnGo(non,0,false,120,-115);    // recalage bordure
   // Avance vers le reservoir
-  turnGo(non,0,false,0,1020);     // Direction reservoir
-  turnGo(non,0,false,90,122);    // Positionnement devant reservoir
+  turnGo(oui,0,false,0,1070);     // Direction reservoir et poussage de cube
+  turnGo(oui,0,false,0,-100);     // Position devant reservoir
+  turnGo(non,0,false,90,0);       // Positionnement devant reservoir
+  action(CALE_BAS);
+  turnGo(non,0,true,0,200);       // Recalage reservoir
+  action(RECUP_BALLES_SAFE);
+  majScore(recuperateur, 1);
+  turnGo(oui,0,false,0,-300);
+  action(CALE_HAUT);
+  turnGo(non,0,false,-75,0);
+  action(ENVOI_BALLES);
+  majScore(5, 2);
+  turnGo(oui,0,false,75,0);
+  turnGo(oui,0,false,0,-1000);
+  turnGo(oui,0,false,-90,-750);
+  turnGo(oui,0,true,0,-20);
+  turnGo(oui,0,false,0,100);
+  turnGo(oui,0,false,-90,810);  // A régler
+  turnGo(oui,0,true,-90,0); // A régler
+  action(CALE_BAS);
+  action(INIT_BARILLET);
+  turnGo(non,0,true,0,500); // A régler
   action(RECUP_BALLES_SAFE);
   majScore(recuperateur, 1);
   turnGo(non,0,false,0,-300);
-  turnGo(non,0,false,-75,0);
-  action(ENVOI_BALLES);
-  majScore(chateau, 5);
+  action(CALE_HAUT);
   //FIN DE MATCH
   while(1)
   {
@@ -221,11 +244,16 @@ void testBarillet()
 int askNavigation()
 {
   int etatNavigation ;
+  char reponseNavigation ;
   Wire.requestFrom(carteDeplacement, 1);
-  char reponseNavigation = Wire.read();
+  while(Wire.available())
+  {
+    reponseNavigation = Wire.read();
+  }
   if (reponseNavigation=='N') etatNavigation = RECU ;
   else if (reponseNavigation=='O') etatNavigation = TERMINEE ;
-  else etatNavigation = ERRONEE ;
+  else if (reponseNavigation=='E') etatNavigation = ERRONEE ;
+  else reponseNavigation = BIZARRE ;
 	return etatNavigation;
 }
 
@@ -325,8 +353,12 @@ void attente(int temps)
 int askAction()
 {
   int etatAction ;
+  char reponseAction ;
   Wire.requestFrom(carteActionneur, 1);
-  char reponseAction = Wire.read();
+  while(Wire.available())
+  {
+    reponseAction = Wire.read();
+  }
   if (reponseAction=='N') etatAction = RECU ;
   else if (reponseAction=='O') etatAction = TERMINEE ;
   else if (reponseAction=='E') etatAction = ERRONEE ;
@@ -339,17 +371,17 @@ void action(byte action)
 {
   int reponseAction ;
 	sendAction(action);
-	attente(400);
+	//attente(400);
   reponseAction = askAction();
   // Tant que l'action n'est pas terminée
 	while(reponseAction!=TERMINEE)
 	{
-		attente(400);
     if ((reponseAction==ERRONEE))
     {
       sendAction(action); // l'action est erronée, on renvois la donnée
       nbrBadCRC++;
     }
+    attente(100);
     reponseAction = askAction();
 		//Serial.println(askAction());
 	}
@@ -366,18 +398,18 @@ void turnGo(bool adversaire, bool recalage,bool ralentit,int turn, int go)
 	bitWrite(optionNavigation,1,recalage);
 	bitWrite(optionNavigation,2,ralentit);
 	sendNavigation(optionNavigation, turn, go);
-	attente(400);
+	//attente(100);
   reponseNavigation = askNavigation();
 	while(reponseNavigation!=TERMINEE)
 	{
-		attente(400);
     if (reponseNavigation==ERRONEE)
     {
       sendNavigation(optionNavigation, turn, go);
       nbrBadCRC++;
     }
+    attente(100);
     reponseNavigation = askNavigation();
-		//Serial.println(askNavigation());
+		Serial.println(askNavigation());
 	}
 }
 

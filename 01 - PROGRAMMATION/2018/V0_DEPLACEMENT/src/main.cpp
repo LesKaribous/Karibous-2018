@@ -69,8 +69,8 @@ void updatePos()
 		// Activer les moteurs
 		digitalWrite(pinSleep1, HIGH);
 		digitalWrite(pinSleep2, HIGH);
+		newPos = VALIDEE;
 	}
-	newPos = VALIDEE;
 }
 
 void goTo()
@@ -479,19 +479,19 @@ void requestEvent()
 	if ( etatAvance == FINI && etatRotation == FINI && newPos == VALIDEE && !etatABS && !etatLastRot)
   {
     // Mouvement terminé
-		Wire.write("O");
+		Wire.write('O');
 		//Serial.println('O');
 	}
 	else if (newPos == ERRONEE)
 	{
     // Commande non validé
-		Wire.write("E");
+		Wire.write('E');
 		//Serial.println('N');
 	}
 	else
 	{
     // Mouvement non terminé
-		Wire.write("N");
+		Wire.write('N');
 		//Serial.println('N');
 	}
 }

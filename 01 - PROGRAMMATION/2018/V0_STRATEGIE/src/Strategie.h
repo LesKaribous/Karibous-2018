@@ -48,6 +48,11 @@
 // Actions sur la balise
 #define GO_BALISE 7
 #define STOP_BALISE 8
+// Actions sur les cales
+#define CALE_BAS 9
+#define CALE_HAUT 10
+// INIT barillet
+#define INIT_BARILLET 11
 
 // Logo Karibous
 #define LOGO_KARIBOUS_width 128
@@ -157,6 +162,7 @@ void bouttonIHM();
 
 //TEST DE DEPLACEMENT----------------
 void testDeplacement();
+void testErreur();      // tester l'erreur com du robot
 
 //STRATEGIES----------------
 void Homologation();
