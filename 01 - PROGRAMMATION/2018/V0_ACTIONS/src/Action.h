@@ -27,6 +27,7 @@
 // Actions de recuperation/envoi des balles
 #define RECUP_BALLES_COMPLET 4
 #define RECUP_BALLES_SAFE 5
+#define RECUP_BALLES_ORANGE 12
 #define ENVOI_BALLES 6
 // Actions sur la balise
 #define GO_BALISE 7
@@ -81,9 +82,9 @@ const int hautCaleDroite    = 65    ;
 const int basCaleGauche     = 35    ;
 const int hautCaleGauche    = 115   ;
 
-const int positionSelecteur[3] = {170,130,70};
+const int positionSelecteur[3] = {170,130,40};
 const int sequenceBarilletComplet[5] = {-722,279,150,150};
-const int sequenceBarilletSafe[3] = {572,143,-143};
+const int sequenceBarilletSafe[3] = {572,143,1200};
 const int sequenceBarilletEnvoi[2] = {143,0};
 // Variables du moteur de lancé de balles
 int moteurBalles = ana_1      ;
@@ -137,6 +138,7 @@ void actionBras();
 void actionEnvoiBalles();
 void actionRecuperationComplet();
 void actionRecuperationSafe();
+void actionRecuperationOrange();
 bool attente(int temps);
 bool accelerationMoteur();
 

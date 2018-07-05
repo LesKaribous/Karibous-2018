@@ -108,8 +108,8 @@ const float FacteurRot = 4.25; //Ancien : 19.64
 
 const float VitesseMaxDroite = 6000.0; //Ancien : 3000 11/05/2018
 const float VitesseMaxGauche = 6000.0; //Ancien : 3000 11/05/2018
-const float VitesseMinDroite = 4000.0; //Ancien : 800 11/05/2018
-const float VitesseMinGauche = 4000.0; //Ancien : 800 11/05/2018
+const float VitesseMinDroite = 4000.0; //Ancien : 4000 23/06/2018
+const float VitesseMinGauche = 4000.0; //Ancien : 4000 23/06/2018
 const float AccelRot = 2500.0; //Ancien : 2000
 const float AccelMin = 3000.0; //Ancien : 2000
 const float AccelMax = 5000.0; //Ancien : 5000

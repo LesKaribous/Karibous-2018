@@ -146,6 +146,16 @@ void turnGo()
     {
       MGauche.setAcceleration(AccelRot);
       MDroit.setAcceleration(AccelRot);
+			if (optionRalentit)
+  		{
+  			MGauche.setMaxSpeed(VitesseMinGauche);
+  	        MDroit.setMaxSpeed(VitesseMinDroite);
+  		}
+  		else
+  		{
+  			MGauche.setMaxSpeed(VitesseMaxGauche);
+  	        MDroit.setMaxSpeed(VitesseMaxDroite);
+  		}
       MDroit.move(NewRot*FacteurRot);
       MGauche.move(NewRot*FacteurRot);
       etatRotation = EN_COURS ;

@@ -50,6 +50,7 @@ void loop()
   //Homologation();
   //testBarillet();
   //testErreur();
+  //deplacementFilm();
   abeilleFirst();
 }
 
@@ -65,6 +66,12 @@ void bouttonIHM()
   {
     initRobot();
   }
+}
+//----------------Deplacement film------------------
+void deplacementFilm()
+{
+  turnGo(non,0,true,4000,0);   // Tourner sur lui même
+  turnGo(non,0,true,-4000,0);   // Tourner sur lui même
 }
 
 //----------------TEST DE DEPLACEMENT----------------
@@ -149,7 +156,7 @@ void abeilleFirst()
   action(CALE_BAS);
   action(INIT_BARILLET);
   turnGo(non,0,true,0,500); // A régler
-  action(RECUP_BALLES_SAFE);
+  action(RECUP_BALLES_ORANGE);
   majScore(recuperateur, 1);
   turnGo(non,0,false,0,-300);
   action(CALE_HAUT);

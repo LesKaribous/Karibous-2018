@@ -107,6 +107,9 @@ void executeAction()
       case RECUP_BALLES_SAFE:
         actionRecuperationSafe();
       break;
+      case RECUP_BALLES_ORANGE:
+        actionRecuperationOrange();
+      break;
       case ENVOI_BALLES:
         actionEnvoiBalles();
       break;
@@ -388,6 +391,60 @@ void actionRecuperationSafe()
     case 6:
       // Fin de l'actions
       etatAction=FINI;
+      indexAction++;
+    break;
+  }
+}
+
+void actionRecuperationOrange()
+{
+  switch(indexAction)
+  {
+    case 0:
+      //
+      barriere.write(basBarriere);
+      trappe.write(basTrappe);
+      selecteur.write(positionSelecteur[2]);
+      digitalWrite(pinSleep1, HIGH);
+      MBarillet.move(sequenceBarilletSafe[2]);
+      indexAction++;
+    break;
+    case 1:
+      // Attendre la fin du mouvement du barillet
+      if(!MBarillet.run())
+      {
+        indexAction++;
+        digitalWrite(pinSleep1, LOW);
+      }
+    break;
+    case 2:
+      //
+      if (!attente(800)) indexAction++;
+    break;
+    case 3:
+      //
+      selecteur.write(positionSelecteur[2]);
+      digitalWrite(pinSleep1, HIGH);
+      MBarillet.move(sequenceBarilletSafe[2]);
+      indexAction++;
+    break;
+    case 4:
+      // Attendre la fin du mouvement du barillet
+      if(!MBarillet.run())
+      {
+        indexAction++;
+        digitalWrite(pinSleep1, LOW);
+      }
+    break;
+    case 5:
+      //
+      accelerationMoteur();
+      if (!attente(800)) indexAction++;
+    break;
+    case 6:
+      // Fin de l'actions
+      etatAction=FINI;
+      trappe.write(hautTrappe);
       indexAction++;
     break;
   }

@@ -44,6 +44,7 @@
 // Actions de recuperation/envoi des balles
 #define RECUP_BALLES_COMPLET 4
 #define RECUP_BALLES_SAFE 5
+#define RECUP_BALLES_ORANGE 12
 #define ENVOI_BALLES 6
 // Actions sur la balise
 #define GO_BALISE 7
@@ -169,6 +170,7 @@ void Homologation();
 void chateauFirst();
 void testBarillet();
 void abeilleFirst();
+void deplacementFilm();
 
 //INITIALISATION ROBOT----------------
 void initRobot();
