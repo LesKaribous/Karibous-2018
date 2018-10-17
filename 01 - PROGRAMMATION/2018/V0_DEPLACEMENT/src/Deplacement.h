@@ -136,4 +136,4 @@ void FIN_MATCH();
 
 void receiveEvent(int howMany);
 void requestEvent();
-bool detection(int capteur, int iteration);
+//bool detection(int capteur, int iteration);

@@ -41,7 +41,6 @@ void setup()
 	*/
 }
 
-
 void loop()
 {
 
@@ -55,7 +54,6 @@ void loop()
 
 	if (fonction == 255) FIN_MATCH();
 }
-
 
 void updatePos()
 {
@@ -207,7 +205,6 @@ void turnGo()
   }
 }
 
-
 void recalage()
 {
 	// A MODIFIER !!!!!!!!
@@ -249,17 +246,17 @@ void bordure()
 
 }
 
-bool detection(int capteur, int iteration)
-{
-	int valCapteur = 0;
-	valCapteur = analogRead(capteur);
-	for ( int i = 0;i<=iteration;i++)
-	{
-		valCapteur += analogRead(capteur);
-	}
-	valCapteur = valCapteur/iteration;
-	return (valCapteur>=seuilAvant) ;
-}
+// bool detection(int capteur, int iteration)
+// {
+// 	int valCapteur = 0;
+// 	valCapteur = analogRead(capteur);
+// 	for ( int i = 0;i<=iteration;i++)
+// 	{
+// 		valCapteur += analogRead(capteur);
+// 	}
+// 	valCapteur = valCapteur/iteration;
+// 	return (valCapteur>=seuilAvant) ;
+// }
 
 void adversaire()
 {
@@ -408,7 +405,6 @@ void FIN_MATCH()
    	}
 }
 
-
 void receiveEvent(int howMany)
 {
 
@@ -481,7 +477,6 @@ void receiveEvent(int howMany)
 		}
 	}
 }
-
 
 void requestEvent()
 {
